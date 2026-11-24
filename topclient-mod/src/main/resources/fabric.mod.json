@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "topclient",
+  "version": "${version}",
+  "name": "TopClient",
+  "description": "TopClient by TopAmir_: HUD mods, visuals, utilities, profiles and a Right Shift mod menu. Legit only: no combat advantages.",
+  "authors": [
+    "TopAmir_"
+  ],
+  "contact": {},
+  "license": "See LICENSE",
+  "icon": "assets/topclient/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "dev.topclient.client.Main"
+    ],
+    "client": [
+      "dev.topclient.client.clover.CloverClient"
+    ]
+  },
+  "mixins": [
+    "topclient.mixins.json",
+    "topclient.clover.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "fabric-api": "*",
+    "minecraft": "~26.2"
+  },
+  "recommends": {
+    "sodium": "*"
+  }
+}

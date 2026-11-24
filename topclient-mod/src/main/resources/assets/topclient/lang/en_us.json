@@ -1,0 +1,11 @@
+{
+  "key.category.topclient.spotify": "Clover - Spotify HUD",
+  "key.topclient.spotify.next": "Next Song",
+  "key.topclient.spotify.previous": "Previous Song",
+  "key.topclient.spotify.toggle": "Play / Pause",
+  "key.topclient.spotify.hud": "Show / Hide Spotify HUD",
+  "key.topclient.spotify.seek_back": "Back 10 Seconds",
+  "key.topclient.spotify.seek_forward": "Forward 10 Seconds",
+  "key.topclient.spotify.settings": "Spotify HUD Settings",
+  "key.topclient.spotify.position": "Move Spotify HUD"
+}

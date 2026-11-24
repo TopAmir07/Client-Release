@@ -1,0 +1,6 @@
+The pictures in this folder are emoji from Noto Color Emoji by Google
+(https://github.com/googlefonts/noto-emoji), drawn from the font at 96 x 96 pixels.
+
+Noto Emoji images: Copyright 2013-2017 Google Inc. Licensed under the Apache License, Version 2.0
+(https://www.apache.org/licenses/LICENSE-2.0).
+The Noto Color Emoji font is licensed under the SIL Open Font License, Version 1.1.

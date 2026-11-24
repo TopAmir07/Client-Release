@@ -1,0 +1,56 @@
+{
+  "targets": {
+    "clover_blur": {},
+    "clover_previous": {
+      "persistent": true
+    }
+  },
+  "passes": [
+    {
+      "vertex_shader": "topclient:post/clover_screen",
+      "fragment_shader": "topclient:post/motion_blur",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "minecraft:main"
+        },
+        {
+          "sampler_name": "Prev",
+          "target": "clover_previous"
+        }
+      ],
+      "output": "clover_blur",
+      "uniforms": {
+        "MotionBlurConfig": [
+          {
+            "name": "BlendFactor",
+            "type": "float",
+            "value": 0.45
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "topclient:post/clover_screen",
+      "fragment_shader": "topclient:post/clover_copy",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "clover_blur"
+        }
+      ],
+      "output": "clover_previous"
+    },
+    {
+      "vertex_shader": "topclient:post/clover_screen",
+      "fragment_shader": "topclient:post/clover_copy",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "clover_blur"
+        }
+      ],
+      "output": "minecraft:main"
+    }
+  ]
+}

@@ -1,0 +1,412 @@
+{
+  "ui.toggle_on": {
+    "sounds": [
+      "topclient:ui/toggle_on"
+    ]
+  },
+  "ui.toggle_off": {
+    "sounds": [
+      "topclient:ui/toggle_off"
+    ]
+  },
+  "ui.click": {
+    "sounds": [
+      "topclient:ui/click"
+    ]
+  },
+  "ui.tick": {
+    "sounds": [
+      "topclient:ui/tick"
+    ]
+  },
+  "ui.open": {
+    "sounds": [
+      "topclient:ui/open"
+    ]
+  },
+  "ui.crisp.toggle_on": {
+    "sounds": [
+      "topclient:ui/crisp/toggle_on"
+    ]
+  },
+  "ui.crisp.toggle_off": {
+    "sounds": [
+      "topclient:ui/crisp/toggle_off"
+    ]
+  },
+  "ui.crisp.click": {
+    "sounds": [
+      "topclient:ui/crisp/click"
+    ]
+  },
+  "ui.crisp.tick": {
+    "sounds": [
+      "topclient:ui/crisp/tick"
+    ]
+  },
+  "ui.crisp.open": {
+    "sounds": [
+      "topclient:ui/crisp/open"
+    ]
+  },
+  "ui.crisp.close": {
+    "sounds": [
+      "topclient:ui/crisp/close"
+    ]
+  },
+  "ui.crisp.hover": {
+    "sounds": [
+      "topclient:ui/crisp/hover"
+    ]
+  },
+  "ui.bubble.toggle_on": {
+    "sounds": [
+      "topclient:ui/bubble/toggle_on"
+    ]
+  },
+  "ui.bubble.toggle_off": {
+    "sounds": [
+      "topclient:ui/bubble/toggle_off"
+    ]
+  },
+  "ui.bubble.click": {
+    "sounds": [
+      "topclient:ui/bubble/click"
+    ]
+  },
+  "ui.bubble.tick": {
+    "sounds": [
+      "topclient:ui/bubble/tick"
+    ]
+  },
+  "ui.bubble.open": {
+    "sounds": [
+      "topclient:ui/bubble/open"
+    ]
+  },
+  "ui.bubble.close": {
+    "sounds": [
+      "topclient:ui/bubble/close"
+    ]
+  },
+  "ui.bubble.hover": {
+    "sounds": [
+      "topclient:ui/bubble/hover"
+    ]
+  },
+  "ui.glass.toggle_on": {
+    "sounds": [
+      "topclient:ui/glass/toggle_on"
+    ]
+  },
+  "ui.glass.toggle_off": {
+    "sounds": [
+      "topclient:ui/glass/toggle_off"
+    ]
+  },
+  "ui.glass.click": {
+    "sounds": [
+      "topclient:ui/glass/click"
+    ]
+  },
+  "ui.glass.tick": {
+    "sounds": [
+      "topclient:ui/glass/tick"
+    ]
+  },
+  "ui.glass.open": {
+    "sounds": [
+      "topclient:ui/glass/open"
+    ]
+  },
+  "ui.glass.close": {
+    "sounds": [
+      "topclient:ui/glass/close"
+    ]
+  },
+  "ui.glass.hover": {
+    "sounds": [
+      "topclient:ui/glass/hover"
+    ]
+  },
+  "ui.wood.toggle_on": {
+    "sounds": [
+      "topclient:ui/wood/toggle_on"
+    ]
+  },
+  "ui.wood.toggle_off": {
+    "sounds": [
+      "topclient:ui/wood/toggle_off"
+    ]
+  },
+  "ui.wood.click": {
+    "sounds": [
+      "topclient:ui/wood/click"
+    ]
+  },
+  "ui.wood.tick": {
+    "sounds": [
+      "topclient:ui/wood/tick"
+    ]
+  },
+  "ui.wood.open": {
+    "sounds": [
+      "topclient:ui/wood/open"
+    ]
+  },
+  "ui.wood.close": {
+    "sounds": [
+      "topclient:ui/wood/close"
+    ]
+  },
+  "ui.wood.hover": {
+    "sounds": [
+      "topclient:ui/wood/hover"
+    ]
+  },
+  "ui.retro.toggle_on": {
+    "sounds": [
+      "topclient:ui/retro/toggle_on"
+    ]
+  },
+  "ui.retro.toggle_off": {
+    "sounds": [
+      "topclient:ui/retro/toggle_off"
+    ]
+  },
+  "ui.retro.click": {
+    "sounds": [
+      "topclient:ui/retro/click"
+    ]
+  },
+  "ui.retro.tick": {
+    "sounds": [
+      "topclient:ui/retro/tick"
+    ]
+  },
+  "ui.retro.open": {
+    "sounds": [
+      "topclient:ui/retro/open"
+    ]
+  },
+  "ui.retro.close": {
+    "sounds": [
+      "topclient:ui/retro/close"
+    ]
+  },
+  "ui.retro.hover": {
+    "sounds": [
+      "topclient:ui/retro/hover"
+    ]
+  },
+  "ui.pop.toggle_on": {
+    "sounds": [
+      "topclient:ui/pop/toggle_on"
+    ]
+  },
+  "ui.pop.toggle_off": {
+    "sounds": [
+      "topclient:ui/pop/toggle_off"
+    ]
+  },
+  "ui.pop.click": {
+    "sounds": [
+      "topclient:ui/pop/click"
+    ]
+  },
+  "ui.pop.tick": {
+    "sounds": [
+      "topclient:ui/pop/tick"
+    ]
+  },
+  "ui.pop.open": {
+    "sounds": [
+      "topclient:ui/pop/open"
+    ]
+  },
+  "ui.pop.close": {
+    "sounds": [
+      "topclient:ui/pop/close"
+    ]
+  },
+  "ui.pop.hover": {
+    "sounds": [
+      "topclient:ui/pop/hover"
+    ]
+  },
+  "ui.keys.toggle_on": {
+    "sounds": [
+      "topclient:ui/keys/toggle_on"
+    ]
+  },
+  "ui.keys.toggle_off": {
+    "sounds": [
+      "topclient:ui/keys/toggle_off"
+    ]
+  },
+  "ui.keys.click": {
+    "sounds": [
+      "topclient:ui/keys/click"
+    ]
+  },
+  "ui.keys.tick": {
+    "sounds": [
+      "topclient:ui/keys/tick"
+    ]
+  },
+  "ui.keys.open": {
+    "sounds": [
+      "topclient:ui/keys/open"
+    ]
+  },
+  "ui.keys.close": {
+    "sounds": [
+      "topclient:ui/keys/close"
+    ]
+  },
+  "ui.keys.hover": {
+    "sounds": [
+      "topclient:ui/keys/hover"
+    ]
+  },
+  "ui.scifi.toggle_on": {
+    "sounds": [
+      "topclient:ui/scifi/toggle_on"
+    ]
+  },
+  "ui.scifi.toggle_off": {
+    "sounds": [
+      "topclient:ui/scifi/toggle_off"
+    ]
+  },
+  "ui.scifi.click": {
+    "sounds": [
+      "topclient:ui/scifi/click"
+    ]
+  },
+  "ui.scifi.tick": {
+    "sounds": [
+      "topclient:ui/scifi/tick"
+    ]
+  },
+  "ui.scifi.open": {
+    "sounds": [
+      "topclient:ui/scifi/open"
+    ]
+  },
+  "ui.scifi.close": {
+    "sounds": [
+      "topclient:ui/scifi/close"
+    ]
+  },
+  "ui.scifi.hover": {
+    "sounds": [
+      "topclient:ui/scifi/hover"
+    ]
+  },
+  "ui.chime.toggle_on": {
+    "sounds": [
+      "topclient:ui/chime/toggle_on"
+    ]
+  },
+  "ui.chime.toggle_off": {
+    "sounds": [
+      "topclient:ui/chime/toggle_off"
+    ]
+  },
+  "ui.chime.click": {
+    "sounds": [
+      "topclient:ui/chime/click"
+    ]
+  },
+  "ui.chime.tick": {
+    "sounds": [
+      "topclient:ui/chime/tick"
+    ]
+  },
+  "ui.chime.open": {
+    "sounds": [
+      "topclient:ui/chime/open"
+    ]
+  },
+  "ui.chime.close": {
+    "sounds": [
+      "topclient:ui/chime/close"
+    ]
+  },
+  "ui.chime.hover": {
+    "sounds": [
+      "topclient:ui/chime/hover"
+    ]
+  },
+  "ui.drop.toggle_on": {
+    "sounds": [
+      "topclient:ui/drop/toggle_on"
+    ]
+  },
+  "ui.drop.toggle_off": {
+    "sounds": [
+      "topclient:ui/drop/toggle_off"
+    ]
+  },
+  "ui.drop.click": {
+    "sounds": [
+      "topclient:ui/drop/click"
+    ]
+  },
+  "ui.drop.tick": {
+    "sounds": [
+      "topclient:ui/drop/tick"
+    ]
+  },
+  "ui.drop.open": {
+    "sounds": [
+      "topclient:ui/drop/open"
+    ]
+  },
+  "ui.drop.close": {
+    "sounds": [
+      "topclient:ui/drop/close"
+    ]
+  },
+  "ui.drop.hover": {
+    "sounds": [
+      "topclient:ui/drop/hover"
+    ]
+  },
+  "ui.arcade.toggle_on": {
+    "sounds": [
+      "topclient:ui/arcade/toggle_on"
+    ]
+  },
+  "ui.arcade.toggle_off": {
+    "sounds": [
+      "topclient:ui/arcade/toggle_off"
+    ]
+  },
+  "ui.arcade.click": {
+    "sounds": [
+      "topclient:ui/arcade/click"
+    ]
+  },
+  "ui.arcade.tick": {
+    "sounds": [
+      "topclient:ui/arcade/tick"
+    ]
+  },
+  "ui.arcade.open": {
+    "sounds": [
+      "topclient:ui/arcade/open"
+    ]
+  },
+  "ui.arcade.close": {
+    "sounds": [
+      "topclient:ui/arcade/close"
+    ]
+  },
+  "ui.arcade.hover": {
+    "sounds": [
+      "topclient:ui/arcade/hover"
+    ]
+  }
+}

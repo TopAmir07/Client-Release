@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TopClient</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="polish.css">
+</head>
+<body>
+<div id="bg"><img alt=""><video muted loop playsinline></video></div>
+<canvas id="fx"></canvas>
+<header id="top">
+  <div class="brand drag">
+    <span class="mark" data-logo></span>
+    <div class="word"><b>TOP<span>CLIENT</span></b><small>by TopAmir_</small></div>
+  </div>
+  <nav id="tabs"></nav>
+  <div class="drag spacer"></div>
+  <button id="updBtn" class="btn upd" title="Check for updates"></button>
+  <button id="acct" class="acct"></button>
+  <div id="win" class="win" hidden>
+    <button data-wa="min" title="Minimise"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+    <button data-wa="max" title="Maximise"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7"/></svg></button>
+    <button data-wa="close" class="x" title="Close"><svg viewBox="0 0 12 12"><path d="m3 3 6 6M9 3l-6 6"/></svg></button>
+  </div>
+</header>
+<div id="mid"><aside id="side"></aside><main id="view"></main></div>
+<footer id="dock">
+  <button id="dockProf" class="dock-prof"></button>
+  <div class="dock-mid">
+    <div id="dockStage" class="dock-stage"></div>
+    <div class="bar"><i id="dockBar"></i></div>
+  </div>
+  <button id="play" class="play"><span>PLAY</span></button>
+</footer>
+<div id="toasts"></div>
+<script src="skin3d.js"></script>
+<script src="app.js"></script>
+<script src="look.js"></script>
+</body>
+</html>
