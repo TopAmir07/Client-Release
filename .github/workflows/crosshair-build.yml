@@ -1,0 +1,22 @@
+name: Crosshair feature build
+
+on:
+  push:
+    branches:
+      - feature/lunar-style-crosshair
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Build Fabric mod
+        working-directory: topclient-mod
+        run: chmod +x ./gradlew && ./gradlew build --no-daemon
