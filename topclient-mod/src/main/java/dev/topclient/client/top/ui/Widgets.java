@@ -62,8 +62,9 @@ public final class Widgets {
 	/** On/off switch, 40x22. on is the animated 0..1 position. */
 	public static void toggle(Ui ui, int x, int y, float on, int action, int arg) {
 		int w = 40, h = 22;
-		Draw.round(ui.ctx, x, y, w, h, h / 2, argb(255, mix(FIELD, ACCENT, on)));
-		Draw.outline(ui.ctx, x, y, w, h, h / 2, 1, argb(255, mix(BORDER, ACCENT, on)));
+		int stateColour = mix(DISABLED, ENABLED, on);
+		Draw.round(ui.ctx, x, y, w, h, h / 2, argb(255, stateColour));
+		Draw.outline(ui.ctx, x, y, w, h, h / 2, 1, argb(255, mix(BORDER, stateColour, on)));
 		float kx = x + 11 + on * (w - 22);
 		Draw.circle(ui.ctx, kx, y + h / 2F, 8, argb(255, mix(TEXT_MUTE, 0xFFFFFF, on)));
 		ui.hit(x - 4, y - 4, w + 8, h + 8, action, arg);
