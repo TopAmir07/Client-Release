@@ -147,6 +147,23 @@ public final class UtilityModules {
 		final Setting outline = bool("outline", "Black outline", true);
 		final Setting dot = bool("dot", "Centre dot", false);
 		final Setting dynamic = bool("dynamic", "Dynamic (opens while moving)", false);
+		final Setting vanillaBlending = bool("vanilla_blending", "Vanilla blending", false);
+		final Setting dynamicBow = bool("dynamic_bow", "Dynamic bow", false);
+		final Setting dynamicAttack = bool("dynamic_attack", "Dynamic attack", false);
+		final Setting spectator = bool("spectator", "Visible in spectator", true);
+		final Setting healthShift = bool("health_shift", "Health color shift", false);
+		final Setting customScale = bool("custom_scale", "Use custom scale", false);
+		final Setting scale = number("scale", "Custom scale", 0.5F, 2F, 0.05F, 1F);
+		final Setting friendly = bool("friendly", "Custom friendly crosshair", false);
+		final Setting enemy = bool("enemy", "Custom enemy crosshair", false);
+		final Setting friendlyShape = mode("friendly_shape", "Friendly crosshair shape", 0,
+				"Cross", "Cross with gap", "Dot", "Circle", "T", "X", "My drawing");
+		final Setting enemyShape = mode("enemy_shape", "Enemy crosshair shape", 1,
+				"Cross", "Cross with gap", "Dot", "Circle", "T", "X", "My drawing");
+		final Setting friendlyColor = color("friendly_color", "Friendly colour", 0x55DD88);
+		final Setting enemyColor = color("enemy_color", "Enemy colour", 0xFF5555);
+		final Setting elytra = bool("elytra", "Elytra status crosshair", false);
+		final Setting thirdPerson = bool("third_person", "Show crosshair in third person", false);
 		private float spread;
 
 		public static final int SHAPE_DRAWING = 7, GRID = 15;
@@ -170,6 +187,22 @@ public final class UtilityModules {
 
 		public static int argb() {
 			return (Math.round(instance.alpha.getFloat() * 255) << 24) | instance.color.getColor();
+		}
+
+		public static float renderScale() {
+			return instance != null && instance.customScale.getBool() ? instance.scale.getFloat() : 1F;
+		}
+
+		public static boolean spectatorVisible() {
+			return instance != null && instance.spectator.getBool();
+		}
+
+		public static boolean vanillaBlending() {
+			return instance != null && instance.vanillaBlending.getBool();
+		}
+
+		public static boolean thirdPersonEnabled() {
+			return instance != null && instance.thirdPerson.getBool();
 		}
 
 		/** True when the editor draws its own shape instead of the game's picture. */
@@ -207,15 +240,44 @@ public final class UtilityModules {
 		public static void draw(net.minecraft.client.gui.GuiGraphicsExtractor ctx, float cx, float cy) {
 			CrosshairColor c = instance;
 			Minecraft mc = Minecraft.getInstance();
-			if (c.dynamic.getBool() && mc.player != null) {
+			if (mc.player != null && (c.dynamic.getBool() || c.dynamicBow.getBool() || c.dynamicAttack.getBool())) {
 				var v = mc.player.getDeltaMovement();
-				float target = (float) Math.min(8, Math.sqrt(v.x * v.x + v.z * v.z) * 30 + (mc.player.onGround() ? 0 : 3));
-				c.spread += (target - c.spread) * 0.25F;
+				float target = c.dynamic.getBool()
+						? (float) Math.min(8, Math.sqrt(v.x * v.x + v.z * v.z) * 30 + (mc.player.onGround() ? 0 : 3)) : 0F;
+				if (c.dynamicBow.getBool() && mc.player.isUsingItem()
+						&& mc.player.getUseItem().getItem() instanceof net.minecraft.world.item.BowItem) {
+					target += mc.player.getTicksUsingItem() * 0.15F;
+				}
+				if (c.dynamicAttack.getBool()) target += (1F - mc.player.getAttackStrengthScale(0F)) * 3F;
+				c.spread += (Math.min(12F, target) - c.spread) * 0.25F;
 			} else {
 				c.spread = 0;
 			}
 			float gs = (float) mc.getWindow().getGuiScale();
-			drawLook(ctx, cx, cy, 1F / gs, gs, current(), c.spread);
+			Look look = current();
+			if (mc.player != null && c.elytra.getBool() && mc.player.isFallFlying()) {
+				look = new Look(look.shape(), Math.max(2F, look.size() * 0.8F), Math.max(0F, look.gap() - 1F), look.thick(),
+						look.outline(), look.dot(), 0x55DDEE, look.alpha(), look.bits());
+			}
+			if (mc.player != null && mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit
+					&& hit.getEntity() instanceof net.minecraft.world.entity.player.Player target) {
+				boolean isFriendly = mc.player.isAlliedTo(target);
+				if (isFriendly && c.friendly.getBool()) {
+					look = new Look(c.friendlyShape.getMode() + 1, look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+							c.friendlyColor.getColor(), look.alpha(), look.bits());
+				} else if (!isFriendly && c.enemy.getBool()) {
+					look = new Look(c.enemyShape.getMode() + 1, look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+							c.enemyColor.getColor(), look.alpha(), look.bits());
+				}
+			}
+			if (c.healthShift.getBool() && mc.player != null) {
+				float health = Math.max(0F, Math.min(1F, mc.player.getHealth() / Math.max(1F, mc.player.getMaxHealth())));
+				int red = Math.round(255 * (1F - health));
+				int green = Math.round(255 * health);
+				look = new Look(look.shape(), look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+						(red << 16) | (green << 8), look.alpha(), look.bits());
+			}
+			drawLook(ctx, cx, cy, renderScale() / gs, gs, look, c.spread);
 		}
 
 		/**
@@ -272,11 +334,12 @@ public final class UtilityModules {
 				case SHAPE_DRAWING -> { // your own pixel drawing; Thickness = size of one drawn pixel
 					long[] b = l.bits();
 					if (b != null) {
-						int cell = t, half = GRID / 2;
+						int cell = t, size = dev.topclient.client.top.Crosshairs.gridSize();
+						int offset = dev.topclient.client.top.Crosshairs.gridOffset(), half = size / 2;
 						for (int pass = ol ? 0 : 1; pass < 2; pass++) {
-							for (int gy = 0; gy < GRID; gy++) {
-								for (int gx = 0; gx < GRID; gx++) {
-									if (!dev.topclient.client.top.Crosshairs.get(b, gx, gy)) {
+							for (int gy = 0; gy < size; gy++) {
+								for (int gx = 0; gx < size; gx++) {
+									if (!dev.topclient.client.top.Crosshairs.get(b, gx + offset, gy + offset)) {
 										continue;
 									}
 									int x0 = (gx - half) * cell - cell / 2, y0 = (gy - half) * cell - cell / 2;
