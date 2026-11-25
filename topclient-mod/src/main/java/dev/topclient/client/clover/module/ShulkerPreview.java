@@ -16,7 +16,7 @@ public final class ShulkerPreview extends Module {
 	private final Setting onlyFilled = bool("onlyFilled", "Only when it has items", true);
 
 	public ShulkerPreview() {
-		super("shulker", "Shulker Box Preview", "Shows what is inside a shulker box when you hover it in your inventory or a chest.", Category.VISUAL);
+		super("shulker", "Shulker Preview", "Preview the contents of a shulker box when hovering over it.", Category.VISUAL);
 		isNew = true;
 		instance = this;
 	}
