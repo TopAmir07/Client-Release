@@ -21,8 +21,12 @@ public final class Crosshairs {
 
 	/** Maximum backing canvas. The editor defaults to a centred 7x7 window. */
 	public static final int GRID = CrosshairColor.GRID;
-	private static final Deque<long[]> UNDO = new ArrayDeque<>();
-	private static final Deque<long[]> REDO = new ArrayDeque<>();
+	private record Snapshot(long[] bits, int gridSize) {
+		private Snapshot copy() { return new Snapshot(bits.clone(), gridSize); }
+	}
+	private static final Deque<Snapshot> UNDO = new ArrayDeque<>();
+	private static final Deque<Snapshot> REDO = new ArrayDeque<>();
+	private static Snapshot strokeStart;
 	private static final int HISTORY_LIMIT = 60;
 
 	public static int gridSize() {
@@ -50,7 +54,7 @@ public final class Crosshairs {
 				set(resized, newStart + x, newStart + y, get(before, oldStart + x, oldStart + y));
 			}
 		}
-		pushUndo(before);
+		if (strokeStart == null) pushUndo(new Snapshot(before, oldSize));
 		setCurrentRaw(resized);
 		Config.setInt("top.xhair.gridSize", size);
 		Config.saveIfNeeded(true);
@@ -143,8 +147,20 @@ public final class Crosshairs {
 
 	public static void setCurrent(long[] b) {
 		long[] before = currentBits().clone();
-		if (!java.util.Arrays.equals(before, b)) pushUndo(before);
+		if (!java.util.Arrays.equals(before, b) && strokeStart == null) pushUndo(new Snapshot(before, gridSize()));
 		setCurrentRaw(b);
+	}
+
+	public static void beginStroke() {
+		if (strokeStart == null) strokeStart = new Snapshot(currentBits().clone(), gridSize());
+	}
+
+	public static void endStroke() {
+		if (strokeStart == null) return;
+		Snapshot before = strokeStart;
+		strokeStart = null;
+		if (before.gridSize() != gridSize() || !java.util.Arrays.equals(before.bits(), currentBits())) pushUndo(before);
+		Config.saveIfNeeded(true);
 	}
 
 	private static void setCurrentRaw(long[] b) {
@@ -152,8 +168,8 @@ public final class Crosshairs {
 		cachedHex = null;
 	}
 
-	private static void pushUndo(long[] bits) {
-		UNDO.push(bits.clone());
+	private static void pushUndo(Snapshot snapshot) {
+		UNDO.push(snapshot.copy());
 		while (UNDO.size() > HISTORY_LIMIT) UNDO.removeLast();
 		REDO.clear();
 	}
@@ -163,15 +179,21 @@ public final class Crosshairs {
 
 	public static void undo() {
 		if (UNDO.isEmpty()) return;
-		REDO.push(currentBits().clone());
-		setCurrentRaw(UNDO.pop());
+		strokeStart = null;
+		REDO.push(new Snapshot(currentBits().clone(), gridSize()));
+		Snapshot previous = UNDO.pop();
+		Config.setInt("top.xhair.gridSize", previous.gridSize());
+		setCurrentRaw(previous.bits());
 		Config.saveIfNeeded(true);
 	}
 
 	public static void redo() {
 		if (REDO.isEmpty()) return;
-		UNDO.push(currentBits().clone());
-		setCurrentRaw(REDO.pop());
+		strokeStart = null;
+		UNDO.push(new Snapshot(currentBits().clone(), gridSize()));
+		Snapshot next = REDO.pop();
+		Config.setInt("top.xhair.gridSize", next.gridSize());
+		setCurrentRaw(next.bits());
 		Config.saveIfNeeded(true);
 	}
 
@@ -206,8 +228,10 @@ public final class Crosshairs {
 					|| !Float.isFinite(gap) || !Float.isFinite(thick) || !Float.isFinite(alpha)
 					|| crossSize < 2 || crossSize > 20 || gap < 0 || gap > 10 || thick < 1 || thick > 6
 					|| alpha < 0 || alpha > 1 || rgb < 0 || rgb > 0xFFFFFF) return false;
+			beginStroke();
 			setGridSize(size);
 			setCurrent(bits);
+			endStroke();
 			CrosshairColor.apply(new Look(shape, crossSize, gap, thick, outline, dot, rgb, alpha, bits));
 			CrosshairColor.setting("color").setColor(rgb);
 			CrosshairColor.setting("alpha").setFloat(alpha);
