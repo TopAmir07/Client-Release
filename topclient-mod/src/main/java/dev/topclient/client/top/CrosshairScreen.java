@@ -29,7 +29,7 @@ import static dev.topclient.client.top.TopTheme.*;
 public final class CrosshairScreen extends TopScreen {
 	private static final int A_PRESET = 1, A_BUILTIN = 2, A_SAVED = 3, A_ENABLE = 4, A_SLIDER = 5, A_TOGGLE = 6, A_SWATCH = 7, A_CUSTOM = 8,
 			A_PICKER = 9, A_GRID = 10, A_TOOL = 11, A_NAME = 12, A_SAVE = 13, A_SAVENEW = 14, A_DELETE = 15, A_NEW = 16, A_RESET = 17,
-			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27, A_FRIENDLY_COLOR = 28, A_ENEMY_COLOR = 29, A_SHARE_COPY = 30;
+			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27, A_FRIENDLY_COLOR = 28, A_ENEMY_COLOR = 29, A_SHARE_COPY = 30, A_FAV_SELECT = 31;
 
 	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick", "scale"};
 	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness", "Custom scale"};
@@ -362,6 +362,7 @@ public final class CrosshairScreen extends TopScreen {
 		if (fav >= 0 && fav <= 0xFFFFFF) {
 			Draw.round(ui.ctx, cx, cy, 24, 24, 5, argb(255, fav));
 			Draw.outline(ui.ctx, cx, cy, 24, 24, 5, 1, argb(255, BORDER));
+			ui.hit(cx, cy, 24, 24, A_FAV_SELECT, 0);
 		}
 		Widgets.button(ui, cx + 30, cy, 38, 28, "★", false, ui.over(cx + 30, cy, 38, 28) ? 1F : 0F, A_FAV, 0);
 		Widgets.button(ui, cx + 74, cy, cw - 74, 28, pickerOpen ? "Hide colour picker" : "Pick colour / enter HEX…", false, ui.over(cx + 74, cy, cw - 74, 28) ? 1F : 0F, A_CUSTOM, 0);
@@ -499,6 +500,11 @@ public final class CrosshairScreen extends TopScreen {
 			case A_FAV -> {
 				Config.setInt("top.xhair.favorite", CrosshairColor.current().rgb());
 				Config.saveIfNeeded(true);
+				UiSounds.click();
+			}
+			case A_FAV_SELECT -> {
+				int favorite = Config.getInt("top.xhair.favorite", -1);
+				if (favorite >= 0 && favorite <= 0xFFFFFF) CrosshairColor.setting("color").setColor(favorite);
 				UiSounds.click();
 			}
 			case A_FRIENDLY_COLOR -> {
