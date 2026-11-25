@@ -18,6 +18,14 @@ public class CrosshairMixin {
 	private void topclient$crosshair(GuiGraphicsExtractor ctx, RenderPipeline pipeline, Identifier texture,
 										int x, int y, int w, int h, Operation<Void> original) {
 		if (UtilityModules.CrosshairColor.custom()) {
+			var mc = net.minecraft.client.Minecraft.getInstance();
+			if (mc.player != null && mc.player.isSpectator() && !UtilityModules.CrosshairColor.spectatorVisible()) {
+				original.call(ctx, pipeline, texture, x, y, w, h);
+				return;
+			}
+			if (UtilityModules.CrosshairColor.vanillaBlending()) {
+				original.call(ctx, pipeline, texture, x, y, w, h);
+			}
 			UtilityModules.CrosshairColor.draw(ctx, x + w / 2F, y + h / 2F);
 		} else if (UtilityModules.CrosshairColor.active()) {
 			ctx.blitSprite(RenderPipelines.GUI_TEXTURED, texture, x, y, w, h, UtilityModules.CrosshairColor.argb());
