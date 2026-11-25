@@ -31,17 +31,17 @@ public final class CrosshairScreen extends TopScreen {
 			A_PICKER = 9, A_GRID = 10, A_TOOL = 11, A_NAME = 12, A_SAVE = 13, A_SAVENEW = 14, A_DELETE = 15, A_NEW = 16, A_RESET = 17,
 			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27;
 
-	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick"};
-	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness"};
-	private static final String[] TOGGLES = {"outline", "dot", "dynamic"};
-	private static final String[] TOGGLE_LABELS = {"Black outline", "Centre dot", "Dynamic (opens while moving)"};
+	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick", "scale"};
+	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness", "Custom scale"};
+	private static final String[] TOGGLES = {"outline", "dot", "dynamic", "vanilla_blending", "dynamic_bow", "dynamic_attack", "spectator", "health_shift", "custom_scale"};
+	private static final String[] TOGGLE_LABELS = {"Black outline", "Centre dot", "Dynamic movement", "Vanilla blending", "Dynamic bow", "Dynamic attack", "Visible in spectator", "Health color shift", "Use custom scale"};
 	private static final int[] SWATCHES = {0xFFFFFF, 0x000000, 0xFF4A4A, 0xFF9A3C, 0xFFE14A, 0x4ADE80, 0x22D3EE, 0x3B82F6, 0xA855F7, 0xF472B6};
 	private static final String[] TOOLS = {"Pencil", "Eraser", "Mirror ↔", "Mirror ↕", "Invert", "Clear"};
 	private static final String[] BGS = {"Sky", "Grass", "Stone", "Dark"};
 
 	private final Scroll leftScroll = new Scroll(), rightScroll = new Scroll();
 	private final Anim hEnable = new Anim();
-	private final Anim[] hTiles = new Anim[80], tToggles = new Anim[3], hBtn = new Anim[12];
+	private final Anim[] hTiles = new Anim[80], tToggles = new Anim[9], hBtn = new Anim[12];
 	private final ColorPicker picker = new ColorPicker();
 	private final TextField name = new TextField("Name your crosshair", 24);
 	private final TextField share = new TextField("Paste share code here", 120);
@@ -51,7 +51,7 @@ public final class CrosshairScreen extends TopScreen {
 	private boolean paintValue = true;
 	private String editingId;
 	private int bg;
-	private final int[] sliderX = new int[4], sliderW = new int[4];
+	private final int[] sliderX = new int[5], sliderW = new int[5];
 	private int gridX, gridY, cell;
 	private String tip;
 
@@ -333,7 +333,7 @@ public final class CrosshairScreen extends TopScreen {
 	// ------------------------------------------------------------------ right: settings
 
 	private void drawRight(int x, int y, int w, int h) {
-		int content = 600 + (pickerOpen ? ColorPicker.HEIGHT + 20 : 0);
+		int content = 980 + (pickerOpen ? ColorPicker.HEIGHT + 20 : 0);
 		rightScroll.setMax(content - h);
 		rightScroll.update(ui);
 		ui.clip(x, y, w, h);
@@ -368,7 +368,7 @@ public final class CrosshairScreen extends TopScreen {
 			float v = s.getFloat();
 			String label = SLIDER_LABELS[i] + (i == 3 && drawing() ? " (pixel size)" : "");
 			Draw.textMid(ui.ctx, label, cx, cy + 8, 12.5F, argb(255, TEXT_DIM), true);
-			String val = i == 0 ? Math.round(v * 100) + "%" : String.valueOf(Math.round(v));
+			String val = i == 0 ? Math.round(v * 100) + "%" : (i == 4 ? String.format(java.util.Locale.ROOT, "%.2fx", v) : String.valueOf(Math.round(v)));
 			Draw.textRight(ui.ctx, val, cx + cw, cy + 8, 12.5F, argb(255, TEXT));
 			sliderX[i] = cx + 8;
 			sliderW[i] = cw - 16;
