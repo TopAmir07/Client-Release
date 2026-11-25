@@ -191,7 +191,9 @@ public final class Crosshairs {
 			if (code == null || !code.startsWith("TCX1-") || code.length() > 2048) return false;
 			String decoded = new String(Base64.getUrlDecoder().decode(code.substring(5)), StandardCharsets.UTF_8);
 			String[] p = decoded.split("\\|", -1);
-			if (p.length != 11 || !p[0].equals("1")) return false;
+			if (p.length != 11 || !p[0].equals("1") || !p[2].matches("[0-9a-fA-F]{64}")
+					|| !(p[9].equals("true") || p[9].equals("false"))
+					|| !(p[10].equals("true") || p[10].equals("false"))) return false;
 			int size = Integer.parseInt(p[1]);
 			if (size != 7 && size != 9 && size != 11 && size != 13 && size != 15) return false;
 			long[] bits = parse(p[2]);
