@@ -44,7 +44,7 @@ public final class CrosshairScreen extends TopScreen {
 	private final Anim[] hTiles = new Anim[80], tToggles = new Anim[13], hBtn = new Anim[12];
 	private final ColorPicker picker = new ColorPicker();
 	private final TextField name = new TextField("Name your crosshair", 24);
-	private final TextField share = new TextField("Paste share code here", 120);
+	private final TextField share = new TextField("Paste share code here", 512);
 	private int activeTab = 0;
 	private boolean shareOpen;
 	private boolean pickerOpen, eraser, mirrorH = true, mirrorV = true;
