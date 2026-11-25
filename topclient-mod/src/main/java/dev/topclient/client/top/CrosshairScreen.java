@@ -202,7 +202,7 @@ public final class CrosshairScreen extends TopScreen {
 		int pad = 18;
 		drawTabs(x + pad, y + 4);
 		int px = x + pad, py = y + 42, pw = w - pad * 2;
-		boolean draw = activeTab == 2 || drawing();
+		boolean draw = activeTab == 2;
 		int ph = draw ? Math.min(h - pad * 2 - 170, pw) : h - pad * 2 - 90;
 		// background of a pretend game view
 		int top, bottom;
@@ -528,9 +528,11 @@ public final class CrosshairScreen extends TopScreen {
 					case 3 -> mirrorV = !mirrorV;
 					case 4 -> {
 						long[] b = Crosshairs.currentBits().clone();
-						for (int yy = 0; yy < Crosshairs.GRID; yy++) {
-							for (int xx = 0; xx < Crosshairs.GRID; xx++) {
-								Crosshairs.set(b, xx, yy, !Crosshairs.get(b, xx, yy));
+						int size = Crosshairs.gridSize(), offset = Crosshairs.gridOffset();
+						for (int yy = 0; yy < size; yy++) {
+							for (int xx = 0; xx < size; xx++) {
+								int px = xx + offset, py = yy + offset;
+								Crosshairs.set(b, px, py, !Crosshairs.get(b, px, py));
 							}
 						}
 						Crosshairs.setCurrent(b);
