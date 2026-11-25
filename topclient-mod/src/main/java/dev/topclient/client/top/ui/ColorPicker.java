@@ -65,7 +65,7 @@ public final class ColorPicker {
 	private void fromHsv() {
 		rgb = hsv(hsv[0], hsv[1], hsv[2]);
 		if (!hex.focused) {
-			hex.text = hex(rgb);
+			hex.text = formatHex();
 		}
 		if (onChange != null) {
 			onChange.accept(rgb);
@@ -158,7 +158,7 @@ public final class ColorPicker {
 		hex.key(key, mods, paste);
 		applyHex();
 		if (!hex.focused) {
-			hex.text = hex(rgb);
+			hex.text = formatHex();
 		}
 		return true;
 	}
