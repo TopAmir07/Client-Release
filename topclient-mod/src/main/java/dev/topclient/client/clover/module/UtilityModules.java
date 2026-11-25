@@ -46,7 +46,7 @@ public final class UtilityModules {
 		private Integer savedFov; // left over from older versions that changed the FOV setting
 
 		public Zoom() {
-			super("zoom", "Zoom", "Hold a key to zoom in like a spyglass; scroll while holding to change how far. Some servers don't allow zoom: check their rules.", Category.UTILITY);
+			super("zoom", "Smart Zoom", "Hold a key to zoom in smoothly; scroll while holding to adjust the zoom level.", Category.UTILITY);
 			instance = this;
 		}
 
