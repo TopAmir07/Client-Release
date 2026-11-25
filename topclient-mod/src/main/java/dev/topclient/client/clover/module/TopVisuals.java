@@ -40,7 +40,7 @@ public final class TopVisuals {
 		final Setting pumpkin = bool("pumpkin", "Hide the carved pumpkin overlay", true);
 
 		public LowOverlays() {
-			super("lowoverlays", "Low Fire & Shield", "Moves the burning overlay and the shield in your hand lower so you see more, and can hide the pumpkin overlay.", Category.VISUAL);
+			super("lowoverlays", "Shield Enhancements", "Adjusts the first-person shield position and fire overlay, with an optional pumpkin overlay toggle.", Category.VISUAL);
 			instance = this;
 		}
 
