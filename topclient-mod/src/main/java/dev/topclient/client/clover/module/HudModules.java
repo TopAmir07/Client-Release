@@ -555,18 +555,24 @@ public final class HudModules {
 	}
 
 	public static final class Saturation extends TextHud {
+		private final Setting showExhaustion = bool("exhaustion", "Show exhaustion", true);
+
 		public Saturation() {
-			super("saturation", "Saturation", "Your hidden food saturation and hunger.", 90, 43);
+			super("saturation", "Food Info", "AppleSkin-style food HUD: hunger, saturation and optional exhaustion.", 90, 43);
 			isNew = true;
 		}
 
 		@Override
 		protected String[] lines(Minecraft mc) {
 			if (mc.player == null) {
-				return new String[]{"Saturation: 5.0"};
+				return new String[]{"Food: 20  Sat: 5.0"};
 			}
 			var food = mc.player.getFoodData();
-			return new String[]{String.format("Food: %d  Sat: %.1f", food.getFoodLevel(), food.getSaturationLevel())};
+			String main = String.format("Food: %d  Sat: %.1f", food.getFoodLevel(), food.getSaturationLevel());
+			if (!showExhaustion.getBool()) {
+				return new String[]{main};
+			}
+			return new String[]{main, String.format("Exhaustion: %.2f / 4.00", food.getExhaustionLevel())};
 		}
 	}
 
