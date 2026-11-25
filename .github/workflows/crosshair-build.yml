@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/lunar-style-crosshair
+      - main
   pull_request:
     branches:
       - main
@@ -23,7 +24,7 @@ jobs:
       - name: Upload built mod jars
         uses: actions/upload-artifact@v4
         with:
-          name: topclient-crosshair-mod
+          name: topclient-mod
           path: topclient-mod/build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
