@@ -93,9 +93,11 @@ public final class CrosshairScreen extends TopScreen {
 	@Override
 	protected void drawBody(int x, int y, int w, int h) {
 		tip = null;
-		int lw = 268, rw = 320;
-		drawLeft(x, y, lw, h);
-		Draw.rect(ui.ctx, x + lw, y, 1, h, argb(255, BORDER));
+		int lw = activeTab == 0 ? 0 : 268, rw = 320;
+		if (lw > 0) {
+			drawLeft(x, y, lw, h);
+			Draw.rect(ui.ctx, x + lw, y, 1, h, argb(255, BORDER));
+		}
 		drawRight(x + w - rw, y, rw, h);
 		Draw.rect(ui.ctx, x + w - rw - 1, y, 1, h, argb(255, BORDER));
 		drawCentre(x + lw + 1, y, w - lw - rw - 2, h);
@@ -198,9 +200,10 @@ public final class CrosshairScreen extends TopScreen {
 
 	private void drawCentre(int x, int y, int w, int h) {
 		int pad = 18;
-		int px = x + pad, py = y + pad, pw = w - pad * 2;
-		boolean draw = drawing();
-		int ph = draw ? Math.min(h - pad * 2 - 130, pw) : h - pad * 2 - 60;
+		drawTabs(x + pad, y + 4);
+		int px = x + pad, py = y + 42, pw = w - pad * 2;
+		boolean draw = activeTab == 2 || drawing();
+		int ph = draw ? Math.min(h - pad * 2 - 170, pw) : h - pad * 2 - 90;
 		// background of a pretend game view
 		int top, bottom;
 		switch (bg) {
@@ -251,6 +254,17 @@ public final class CrosshairScreen extends TopScreen {
 		}
 	}
 
+	private void drawTabs(int x, int y) {
+		String[] tabs = {"SIMPLE", "PRESETS", "CUSTOM"};
+		int bx = x;
+		for (int i = 0; i < tabs.length; i++) {
+			int width = Widgets.chipWidth(tabs[i]) + 18;
+			Widgets.chip(ui, bx, y, 30, tabs[i], activeTab == i,
+					ui.over(bx, y, width, 30) ? 1F : 0F, A_TAB, i);
+			bx += width + 8;
+		}
+	}
+
 	private void drawGrid(int px, int py, int pw, int ph, Look cur) {
 		long[] bits = Crosshairs.currentBits();
 		int g = Crosshairs.gridSize(), offset = Crosshairs.gridOffset();
@@ -297,12 +311,22 @@ public final class CrosshairScreen extends TopScreen {
 			bx += Widgets.chip(ui, bx, y, 30, TOOLS[i], on, ui.over(bx, y, Widgets.chipWidth(TOOLS[i]), 30) ? 1F : 0F, A_TOOL, i) + 6;
 		}
 		int ry = y + 42;
-		name.draw(ui, x, ry, Math.min(240, w / 3), 36, null, A_NAME, 0);
+		name.draw(ui, x, ry, Math.min(200, w / 3), 36, null, A_NAME, 0);
 		int bx2 = x + Math.min(240, w / 3) + 10;
 		bx2 += smallButton(bx2, ry, 36, editingId == null ? "Save" : "Save changes", true, hBtn[0], A_SAVE, 0) + 8;
 		if (editingId != null) {
 			bx2 += smallButton(bx2, ry, 36, "Save as new", false, hBtn[1], A_SAVENEW, 0) + 8;
 			smallButton(bx2, ry, 36, "Delete", false, hBtn[2], A_DELETE, 0);
+		}
+		int ty = ry + 44, tx = x;
+		tx += smallButton(tx, ty, 30, "Undo", false, hBtn[3], A_UNDO, 0) + 6;
+		tx += smallButton(tx, ty, 30, "Redo", false, hBtn[4], A_REDO, 0) + 6;
+		tx += smallButton(tx, ty, 30, "Grid " + Crosshairs.gridSize(), false, hBtn[5], A_GRID_SIZE, 0) + 6;
+		smallButton(tx, ty, 30, "Share", false, hBtn[6], A_SHARE, 0);
+		if (shareOpen) {
+			share.draw(ui, x, ty + 38, w - 10, 34, null, A_NAME, 1);
+			String code = Crosshairs.exportShareCode();
+			Draw.text(ui.ctx, "Current code (select and copy): " + Draw.fit(code, 9F, w - 10), x, ty + 78, 9F, argb(255, TEXT_MUTE));
 		}
 	}
 
@@ -424,7 +448,25 @@ public final class CrosshairScreen extends TopScreen {
 				name.text = "My crosshair";
 				UiSounds.click();
 			}
-			case A_ENABLE -> CrosshairColor.instance.setEnabled(!CrosshairColor.instance.enabled());
+			case A_TAB -> {
+			activeTab = arg;
+			if (activeTab == 2) {
+				if (CrosshairColor.current().shape() != CrosshairColor.SHAPE_DRAWING) useDrawing(Crosshairs.currentBits());
+			} else if (activeTab == 0 && CrosshairColor.current().shape() == CrosshairColor.SHAPE_DRAWING) {
+				CrosshairColor.setting("shape").setMode(1);
+			}
+			UiSounds.click();
+		}
+		case A_UNDO -> Crosshairs.undo();
+		case A_REDO -> Crosshairs.redo();
+		case A_GRID_SIZE -> {
+			int[] sizes = {7, 9, 11, 13, 15};
+			int current = Crosshairs.gridSize(), next = 7;
+			for (int i = 0; i < sizes.length; i++) if (sizes[i] == current) next = sizes[(i + 1) % sizes.length];
+			Crosshairs.setGridSize(next);
+		}
+		case A_SHARE -> shareOpen = !shareOpen;
+		case A_ENABLE -> CrosshairColor.instance.setEnabled(!CrosshairColor.instance.enabled());
 			case A_TOGGLE -> {
 				Setting s = CrosshairColor.setting(TOGGLES[arg]);
 				s.setBool(!s.getBool());
@@ -444,9 +486,7 @@ public final class CrosshairScreen extends TopScreen {
 			}
 			case A_PICKER -> picker.click(arg);
 			case A_GRID -> {
-				if (button == 1) {
-					paint(ui.mx, ui.my, false);
-				}
+				if (button == 1) paint(ui.mx, ui.my, false);
 			}
 			case A_TOOL -> {
 				switch (arg) {
@@ -583,6 +623,11 @@ public final class CrosshairScreen extends TopScreen {
 			name.key(input.key(), input.modifiers(), input.isPaste());
 			return true;
 		}
+		if (share.focused) {
+			share.key(input.key(), input.modifiers(), input.isPaste());
+			if (input.key() == 257 && Crosshairs.importShareCode(share.text)) { share.text = ""; shareOpen = false; }
+			return true;
+		}
 		if (picker.key(input.key(), input.modifiers(), input.isPaste())) {
 			return true;
 		}
@@ -596,6 +641,10 @@ public final class CrosshairScreen extends TopScreen {
 		}
 		if (name.focused) {
 			name.type(input.codepointAsString());
+			return true;
+		}
+		if (share.focused) {
+			share.type(input.codepointAsString());
 			return true;
 		}
 		return picker.type(input.codepointAsString());
