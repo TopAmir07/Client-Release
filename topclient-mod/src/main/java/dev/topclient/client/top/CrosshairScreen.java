@@ -334,7 +334,7 @@ public final class CrosshairScreen extends TopScreen {
 	// ------------------------------------------------------------------ right: settings
 
 	private void drawRight(int x, int y, int w, int h) {
-		int content = 1280 + (pickerOpen ? ColorPicker.HEIGHT + 20 : 0);
+		int content = 1440 + (pickerOpen ? ColorPicker.HEIGHT + 20 : 0);
 		rightScroll.setMax(content - h);
 		rightScroll.update(ui);
 		ui.clip(x, y, w, h);
@@ -384,8 +384,15 @@ public final class CrosshairScreen extends TopScreen {
 			Widgets.slider(ui, sliderX[i], cy + 32, sliderW[i], (v - s.min) / (s.max - s.min), A_SLIDER, i);
 			cy += 56;
 		}
-		// toggles
+		// extra render and context options
+		Draw.text(ui.ctx, "RENDER OPTIONS", cx, cy + 2, 10.5F, argb(255, TEXT_MUTE), true);
+		cy += 20;
 		for (int i = 0; i < TOGGLES.length; i++) {
+			if (i == 9) {
+				cy += 8;
+				Draw.text(ui.ctx, "CONTEXT CROSSHAIRS", cx, cy + 2, 10.5F, argb(255, TEXT_MUTE), true);
+				cy += 20;
+			}
 			Setting s = CrosshairColor.setting(TOGGLES[i]);
 			Draw.textMid(ui.ctx, TOGGLE_LABELS[i], cx, cy + 11, 12.5F, argb(255, TEXT_DIM), true);
 			Widgets.toggle(ui, cx + cw - 40, cy, tToggles[i].to(ui, s.getBool(), 14F), A_TOGGLE, i);
