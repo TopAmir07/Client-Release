@@ -29,7 +29,7 @@ import static dev.topclient.client.top.TopTheme.*;
 public final class CrosshairScreen extends TopScreen {
 	private static final int A_PRESET = 1, A_BUILTIN = 2, A_SAVED = 3, A_ENABLE = 4, A_SLIDER = 5, A_TOGGLE = 6, A_SWATCH = 7, A_CUSTOM = 8,
 			A_PICKER = 9, A_GRID = 10, A_TOOL = 11, A_NAME = 12, A_SAVE = 13, A_SAVENEW = 14, A_DELETE = 15, A_NEW = 16, A_RESET = 17,
-			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21;
+			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27;
 
 	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick"};
 	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness"};
@@ -44,6 +44,9 @@ public final class CrosshairScreen extends TopScreen {
 	private final Anim[] hTiles = new Anim[80], tToggles = new Anim[3], hBtn = new Anim[12];
 	private final ColorPicker picker = new ColorPicker();
 	private final TextField name = new TextField("Name your crosshair", 24);
+	private final TextField share = new TextField("Paste share code here", 120);
+	private int activeTab = 0;
+	private boolean shareOpen;
 	private boolean pickerOpen, eraser, mirrorH = true, mirrorV = true;
 	private boolean paintValue = true;
 	private String editingId;
@@ -250,7 +253,7 @@ public final class CrosshairScreen extends TopScreen {
 
 	private void drawGrid(int px, int py, int pw, int ph, Look cur) {
 		long[] bits = Crosshairs.currentBits();
-		int g = Crosshairs.GRID;
+		int g = Crosshairs.gridSize(), offset = Crosshairs.gridOffset();
 		cell = Math.max(8, Math.min((ph - 40) / g, (pw - 260) / g));
 		int gw = cell * g;
 		gridX = px + 24;
@@ -258,7 +261,7 @@ public final class CrosshairScreen extends TopScreen {
 		Draw.rect(ui.ctx, gridX - 1, gridY - 1, gw + 2, gw + 2, argb(160, 0x000000));
 		for (int yy = 0; yy < g; yy++) {
 			for (int xx = 0; xx < g; xx++) {
-				boolean on = Crosshairs.get(bits, xx, yy);
+				boolean on = Crosshairs.get(bits, xx + offset, yy + offset);
 				boolean centre = xx == g / 2 && yy == g / 2;
 				int c = on ? argb(255, cur.rgb()) : ((xx + yy) % 2 == 0 ? argb(110, 0x000000) : argb(80, 0x000000));
 				Draw.rect(ui.ctx, gridX + xx * cell, gridY + yy * cell, cell - 1, cell - 1, c);
@@ -550,16 +553,11 @@ public final class CrosshairScreen extends TopScreen {
 			return;
 		}
 		long[] b = Crosshairs.currentBits().clone();
-		Crosshairs.set(b, gx, gy, on);
-		if (mirrorH) {
-			Crosshairs.set(b, g - 1 - gx, gy, on);
-		}
-		if (mirrorV) {
-			Crosshairs.set(b, gx, g - 1 - gy, on);
-		}
-		if (mirrorH && mirrorV) {
-			Crosshairs.set(b, g - 1 - gx, g - 1 - gy, on);
-		}
+		int ox = gx + offset, oy = gy + offset;
+		Crosshairs.set(b, ox, oy, on);
+		if (mirrorH) Crosshairs.set(b, offset + g - 1 - gx, oy, on);
+		if (mirrorV) Crosshairs.set(b, ox, offset + g - 1 - gy, on);
+		if (mirrorH && mirrorV) Crosshairs.set(b, offset + g - 1 - gx, offset + g - 1 - gy, on);
 		Crosshairs.setCurrent(b);
 	}
 
