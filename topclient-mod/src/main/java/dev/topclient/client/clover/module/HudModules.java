@@ -383,7 +383,7 @@ public final class HudModules {
 		private static final EquipmentSlot[] SLOTS = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
 		public ArmorStatus() {
-			super("armor", "Armor Status", "Your armor pieces and their durability.", 1, 64);
+			super("armor", "Armor Display", "Shows your equipped armor and its remaining durability.", 1, 64);
 		}
 
 		private List<ItemStack> stacks(Minecraft mc) {
