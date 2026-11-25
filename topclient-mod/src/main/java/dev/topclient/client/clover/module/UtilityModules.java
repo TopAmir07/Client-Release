@@ -156,6 +156,10 @@ public final class UtilityModules {
 		final Setting scale = number("scale", "Custom scale", 0.5F, 2F, 0.05F, 1F);
 		final Setting friendly = bool("friendly", "Custom friendly crosshair", false);
 		final Setting enemy = bool("enemy", "Custom enemy crosshair", false);
+		final Setting friendlyShape = mode("friendly_shape", "Friendly crosshair shape", 0,
+				"Cross", "Cross with gap", "Dot", "Circle", "T", "X", "My drawing");
+		final Setting enemyShape = mode("enemy_shape", "Enemy crosshair shape", 1,
+				"Cross", "Cross with gap", "Dot", "Circle", "T", "X", "My drawing");
 		final Setting friendlyColor = color("friendly_color", "Friendly colour", 0x55DD88);
 		final Setting enemyColor = color("enemy_color", "Enemy colour", 0xFF5555);
 		final Setting elytra = bool("elytra", "Elytra status crosshair", false);
@@ -255,21 +259,23 @@ public final class UtilityModules {
 				look = new Look(look.shape(), Math.max(2F, look.size() * 0.8F), look.gap(), look.thick(),
 						look.outline(), look.dot(), look.rgb(), look.alpha(), look.bits());
 			}
-			if (mc.player != null && mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit) {
-				boolean isFriendly = mc.player.isAlliedTo(hit.getEntity());
+			if (mc.player != null && mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit
+					&& hit.getEntity() instanceof net.minecraft.world.entity.player.Player target) {
+				boolean isFriendly = mc.player.isAlliedTo(target);
 				if (isFriendly && c.friendly.getBool()) {
-					look = new Look(look.shape(), look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+					look = new Look(c.friendlyShape.getMode() + 1, look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
 							c.friendlyColor.getColor(), look.alpha(), look.bits());
 				} else if (!isFriendly && c.enemy.getBool()) {
-					look = new Look(look.shape(), look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+					look = new Look(c.enemyShape.getMode() + 1, look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
 							c.enemyColor.getColor(), look.alpha(), look.bits());
 				}
 			}
 			if (c.healthShift.getBool() && mc.player != null) {
 				float health = Math.max(0F, Math.min(1F, mc.player.getHealth() / Math.max(1F, mc.player.getMaxHealth())));
+				int red = Math.round(255 * (1F - health));
 				int green = Math.round(255 * health);
 				look = new Look(look.shape(), look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
-						(255 << 16) | (green << 8), look.alpha(), look.bits());
+						(red << 16) | (green << 8), look.alpha(), look.bits());
 			}
 			drawLook(ctx, cx, cy, renderScale() / gs, gs, look, c.spread);
 		}
