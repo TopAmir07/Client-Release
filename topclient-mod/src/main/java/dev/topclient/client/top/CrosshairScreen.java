@@ -33,15 +33,15 @@ public final class CrosshairScreen extends TopScreen {
 
 	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick", "scale"};
 	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness", "Custom scale"};
-	private static final String[] TOGGLES = {"outline", "dot", "dynamic", "vanilla_blending", "dynamic_bow", "dynamic_attack", "spectator", "health_shift", "custom_scale"};
-	private static final String[] TOGGLE_LABELS = {"Black outline", "Centre dot", "Dynamic movement", "Vanilla blending", "Dynamic bow", "Dynamic attack", "Visible in spectator", "Health color shift", "Use custom scale"};
+	private static final String[] TOGGLES = {"outline", "dot", "dynamic", "vanilla_blending", "dynamic_bow", "dynamic_attack", "spectator", "health_shift", "custom_scale", "friendly", "enemy", "elytra", "third_person"};
+	private static final String[] TOGGLE_LABELS = {"Black outline", "Centre dot", "Dynamic movement", "Vanilla blending", "Dynamic bow", "Dynamic attack", "Visible in spectator", "Health color shift", "Use custom scale", "Custom friendly crosshair", "Custom enemy crosshair", "Elytra status crosshair", "Show in third person"};
 	private static final int[] SWATCHES = {0xFFFFFF, 0x000000, 0xFF4A4A, 0xFF9A3C, 0xFFE14A, 0x4ADE80, 0x22D3EE, 0x3B82F6, 0xA855F7, 0xF472B6};
 	private static final String[] TOOLS = {"Pencil", "Eraser", "Mirror ↔", "Mirror ↕", "Invert", "Clear"};
 	private static final String[] BGS = {"Sky", "Grass", "Stone", "Dark"};
 
 	private final Scroll leftScroll = new Scroll(), rightScroll = new Scroll();
 	private final Anim hEnable = new Anim();
-	private final Anim[] hTiles = new Anim[80], tToggles = new Anim[9], hBtn = new Anim[12];
+	private final Anim[] hTiles = new Anim[80], tToggles = new Anim[13], hBtn = new Anim[12];
 	private final ColorPicker picker = new ColorPicker();
 	private final TextField name = new TextField("Name your crosshair", 24);
 	private final TextField share = new TextField("Paste share code here", 120);
@@ -333,7 +333,7 @@ public final class CrosshairScreen extends TopScreen {
 	// ------------------------------------------------------------------ right: settings
 
 	private void drawRight(int x, int y, int w, int h) {
-		int content = 980 + (pickerOpen ? ColorPicker.HEIGHT + 20 : 0);
+		int content = 1280 + (pickerOpen ? ColorPicker.HEIGHT + 20 : 0);
 		rightScroll.setMax(content - h);
 		rightScroll.update(ui);
 		ui.clip(x, y, w, h);
@@ -357,8 +357,14 @@ public final class CrosshairScreen extends TopScreen {
 			ui.hit(sx, cy, sw, sw, A_SWATCH, i);
 		}
 		cy += sw + 10;
-		Widgets.button(ui, cx, cy, cw, 32, pickerOpen ? "Hide colour picker" : "Pick any colour…", false, ui.over(cx, cy, cw, 32) ? 1F : 0F, A_CUSTOM, 0);
-		cy += 42;
+		int fav = Config.getInt("top.xhair.favorite", -1);
+		if (fav >= 0 && fav <= 0xFFFFFF) {
+			Draw.round(ui.ctx, cx, cy, 24, 24, 5, argb(255, fav));
+			Draw.outline(ui.ctx, cx, cy, 24, 24, 5, 1, argb(255, BORDER));
+		}
+		Widgets.button(ui, cx + 30, cy, 38, 28, "★", false, ui.over(cx + 30, cy, 38, 28) ? 1F : 0F, A_FAV, 0);
+		Widgets.button(ui, cx + 74, cy, cw - 74, 28, pickerOpen ? "Hide colour picker" : "Pick colour / enter HEX…", false, ui.over(cx + 74, cy, cw - 74, 28) ? 1F : 0F, A_CUSTOM, 0);
+		cy += 38;
 		if (pickerOpen) {
 			cy += picker.draw(ui, cx, cy, cw, A_PICKER) + 16;
 		}
@@ -475,6 +481,11 @@ public final class CrosshairScreen extends TopScreen {
 			case A_SWATCH -> {
 				CrosshairColor.setting("color").setColor(SWATCHES[arg]);
 				picker.open(SWATCHES[arg], c -> CrosshairColor.setting("color").setColor(c));
+				UiSounds.click();
+			}
+			case A_FAV -> {
+				Config.setInt("top.xhair.favorite", CrosshairColor.current().rgb());
+				Config.saveIfNeeded(true);
 				UiSounds.click();
 			}
 			case A_CUSTOM -> {
