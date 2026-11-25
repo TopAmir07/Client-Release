@@ -17,7 +17,7 @@ public final class Freelook extends Module {
 	private CameraType saved;
 
 	public Freelook() {
-		super("freelook", "Freelook", "Hold Left Alt to look around yourself in third person while you keep walking straight.", Category.UTILITY);
+		super("freelook", "Free Look", "Look around in third person while your movement direction stays fixed.", Category.UTILITY);
 		isNew = true;
 		instance = this;
 		settings.add(0, key);
