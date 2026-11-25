@@ -324,7 +324,7 @@ public final class CrosshairScreen extends TopScreen {
 		tx += smallButton(tx, ty, 30, "Grid " + Crosshairs.gridSize(), false, hBtn[5], A_GRID_SIZE, 0) + 6;
 		smallButton(tx, ty, 30, "Share", false, hBtn[6], A_SHARE, 0);
 		if (shareOpen) {
-			share.draw(ui, x, ty + 38, w - 10, 34, null, A_NAME, 1);
+			share.draw(ui, x, ty + 38, w - 10, 34, null, A_SHARE + 100, 1);
 			String code = Crosshairs.exportShareCode();
 			Draw.text(ui.ctx, "Current code (select and copy): " + Draw.fit(code, 9F, w - 10), x, ty + 78, 9F, argb(255, TEXT_MUTE));
 		}
@@ -417,6 +417,7 @@ public final class CrosshairScreen extends TopScreen {
 			name.focused = false;
 			picker.hex.focused = false;
 		}
+		if (action != A_SHARE) share.focused = false;
 		switch (action) {
 			case A_PRESET -> {
 				enableCustom();
@@ -471,7 +472,12 @@ public final class CrosshairScreen extends TopScreen {
 			for (int i = 0; i < sizes.length; i++) if (sizes[i] == current) next = sizes[(i + 1) % sizes.length];
 			Crosshairs.setGridSize(next);
 		}
-		case A_SHARE -> shareOpen = !shareOpen;
+		case A_SHARE -> {
+				shareOpen = !shareOpen;
+				if (shareOpen) share.text = Crosshairs.exportShareCode();
+				share.focused = false;
+			}
+			case A_SHARE + 100 -> share.focused = true;
 		case A_ENABLE -> CrosshairColor.instance.setEnabled(!CrosshairColor.instance.enabled());
 			case A_TOGGLE -> {
 				Setting s = CrosshairColor.setting(TOGGLES[arg]);
@@ -576,7 +582,7 @@ public final class CrosshairScreen extends TopScreen {
 					painting = true;
 					long[] b = Crosshairs.currentBits();
 					int gx = (int) ((mx - gridX) / Math.max(1, cell)), gy = (int) ((my - gridY) / Math.max(1, cell));
-					paintValue = !eraser && !(Crosshairs.get(b, gx, gy) && !eraser && clickToggles);
+					paintValue = !eraser && !(Crosshairs.get(b, gx + Crosshairs.gridOffset(), gy + Crosshairs.gridOffset()) && !eraser && clickToggles);
 				}
 				paint(mx, my, paintValue);
 			}
@@ -598,7 +604,7 @@ public final class CrosshairScreen extends TopScreen {
 	}
 
 	private void paint(double mx, double my, boolean on) {
-		int g = Crosshairs.GRID;
+		int g = Crosshairs.gridSize(), offset = Crosshairs.gridOffset();
 		int gx = (int) Math.floor((mx - gridX) / Math.max(1, cell)), gy = (int) Math.floor((my - gridY) / Math.max(1, cell));
 		if (gx < 0 || gy < 0 || gx >= g || gy >= g) {
 			return;
@@ -636,7 +642,10 @@ public final class CrosshairScreen extends TopScreen {
 		}
 		if (share.focused) {
 			share.key(input.key(), input.modifiers(), input.isPaste());
-			if (input.key() == 257 && Crosshairs.importShareCode(share.text)) { share.text = ""; shareOpen = false; }
+			if (input.key() == 257) {
+				if (Crosshairs.importShareCode(share.text)) { share.text = ""; shareOpen = false; }
+				share.focused = false;
+			}
 			return true;
 		}
 		if (picker.key(input.key(), input.modifiers(), input.isPaste())) {
