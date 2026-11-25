@@ -256,8 +256,8 @@ public final class UtilityModules {
 			float gs = (float) mc.getWindow().getGuiScale();
 			Look look = current();
 			if (mc.player != null && c.elytra.getBool() && mc.player.isFallFlying()) {
-				look = new Look(look.shape(), Math.max(2F, look.size() * 0.8F), look.gap(), look.thick(),
-						look.outline(), look.dot(), look.rgb(), look.alpha(), look.bits());
+				look = new Look(look.shape(), Math.max(2F, look.size() * 0.8F), Math.max(0F, look.gap() - 1F), look.thick(),
+						look.outline(), look.dot(), 0x55DDEE, look.alpha(), look.bits());
 			}
 			if (mc.player != null && mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit
 					&& hit.getEntity() instanceof net.minecraft.world.entity.player.Player target) {
