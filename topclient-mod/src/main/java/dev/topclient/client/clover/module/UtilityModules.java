@@ -147,6 +147,13 @@ public final class UtilityModules {
 		final Setting outline = bool("outline", "Black outline", true);
 		final Setting dot = bool("dot", "Centre dot", false);
 		final Setting dynamic = bool("dynamic", "Dynamic (opens while moving)", false);
+		final Setting vanillaBlending = bool("vanilla_blending", "Vanilla blending", false);
+		final Setting dynamicBow = bool("dynamic_bow", "Dynamic bow", false);
+		final Setting dynamicAttack = bool("dynamic_attack", "Dynamic attack", false);
+		final Setting spectator = bool("spectator", "Visible in spectator", true);
+		final Setting healthShift = bool("health_shift", "Health color shift", false);
+		final Setting customScale = bool("custom_scale", "Use custom scale", false);
+		final Setting scale = number("scale", "Custom scale", 0.5F, 2F, 0.05F, 1F);
 		private float spread;
 
 		public static final int SHAPE_DRAWING = 7, GRID = 15;
@@ -170,6 +177,14 @@ public final class UtilityModules {
 
 		public static int argb() {
 			return (Math.round(instance.alpha.getFloat() * 255) << 24) | instance.color.getColor();
+		}
+
+		public static float renderScale() {
+			return instance != null && instance.customScale.getBool() ? instance.scale.getFloat() : 1F;
+		}
+
+		public static boolean spectatorVisible() {
+			return instance != null && instance.spectator.getBool();
 		}
 
 		/** True when the editor draws its own shape instead of the game's picture. */
@@ -207,15 +222,28 @@ public final class UtilityModules {
 		public static void draw(net.minecraft.client.gui.GuiGraphicsExtractor ctx, float cx, float cy) {
 			CrosshairColor c = instance;
 			Minecraft mc = Minecraft.getInstance();
-			if (c.dynamic.getBool() && mc.player != null) {
+			if (mc.player != null && (c.dynamic.getBool() || c.dynamicBow.getBool() || c.dynamicAttack.getBool())) {
 				var v = mc.player.getDeltaMovement();
-				float target = (float) Math.min(8, Math.sqrt(v.x * v.x + v.z * v.z) * 30 + (mc.player.onGround() ? 0 : 3));
-				c.spread += (target - c.spread) * 0.25F;
+				float target = c.dynamic.getBool()
+						? (float) Math.min(8, Math.sqrt(v.x * v.x + v.z * v.z) * 30 + (mc.player.onGround() ? 0 : 3)) : 0F;
+				if (c.dynamicBow.getBool() && mc.player.isUsingItem()
+						&& mc.player.getUseItem().getItem() instanceof net.minecraft.world.item.BowItem) {
+					target += mc.player.getTicksUsingItem() * 0.15F;
+				}
+				if (c.dynamicAttack.getBool()) target += (1F - mc.player.getAttackStrengthScale(0F)) * 3F;
+				c.spread += (Math.min(12F, target) - c.spread) * 0.25F;
 			} else {
 				c.spread = 0;
 			}
 			float gs = (float) mc.getWindow().getGuiScale();
-			drawLook(ctx, cx, cy, 1F / gs, gs, current(), c.spread);
+			Look look = current();
+			if (c.healthShift.getBool() && mc.player != null) {
+				float health = Math.max(0F, Math.min(1F, mc.player.getHealth() / Math.max(1F, mc.player.getMaxHealth())));
+				int green = Math.round(255 * health);
+				look = new Look(look.shape(), look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+						(255 << 16) | (green << 8), look.alpha(), look.bits());
+			}
+			drawLook(ctx, cx, cy, renderScale() / gs, gs, look, c.spread);
 		}
 
 		/**
