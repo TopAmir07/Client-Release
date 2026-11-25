@@ -2,6 +2,20 @@
 
 TopClient by TopAmir_: a legit Fabric client mod with HUD mods, visuals, utilities, profiles and a mod menu on Right Shift. No combat advantages: no auto-clicker, no reach, no hitbox expansion, no aim help.
 
+## Crosshair editor (Clover > Visual > Crosshair)
+
+Open **Open crosshair editor** from the Crosshair module.
+
+- **SIMPLE:** quick controls for opacity, size, gap, thickness, centre dot and outline.
+- **PRESETS:** choose a built-in crosshair or one of your saved drawings.
+- **CUSTOM:** draw on the centred 7x7 grid (switch between 7, 9, 11, 13 and 15); left-click/drag draws, right-click erases. Mirror horizontally or vertically, invert, clear, undo and redo.
+- **Share:** press **Share**, paste a `TCX1-` code into the field and press Enter to import; use **Copy share code** to copy the current design.
+- **Colour:** HSV picker, RGB sliders, `#RRGGBB` or `#AARRGGBB` hex, opacity and one saved favourite colour.
+- **Render options:** vanilla blending, movement/bow/attack dynamic gap, spectator visibility, health colour shift, custom scale and an elytra status tint.
+- **Context crosshairs:** enable separate shapes and colours for allied or opposing players, and optionally show the custom crosshair in third person.
+
+Saved drawings and crosshair settings are stored in the normal TopClient config. The custom editor keeps its existing 15x15 backing format and shows a centred, resizable window so older drawings remain compatible.
+
 ## Credits
 TopClient is a fork of the AfrikaClient 26.2 mod, which is itself based on lvstrng's client source. The original licence (`LICENSE`) still applies, and the history of the base mod is kept below.
 
