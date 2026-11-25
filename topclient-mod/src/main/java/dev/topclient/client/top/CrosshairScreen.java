@@ -29,7 +29,7 @@ import static dev.topclient.client.top.TopTheme.*;
 public final class CrosshairScreen extends TopScreen {
 	private static final int A_PRESET = 1, A_BUILTIN = 2, A_SAVED = 3, A_ENABLE = 4, A_SLIDER = 5, A_TOGGLE = 6, A_SWATCH = 7, A_CUSTOM = 8,
 			A_PICKER = 9, A_GRID = 10, A_TOOL = 11, A_NAME = 12, A_SAVE = 13, A_SAVENEW = 14, A_DELETE = 15, A_NEW = 16, A_RESET = 17,
-			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27, A_FRIENDLY_COLOR = 28, A_ENEMY_COLOR = 29;
+			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27, A_FRIENDLY_COLOR = 28, A_ENEMY_COLOR = 29, A_SHARE_COPY = 30;
 
 	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick", "scale"};
 	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness", "Custom scale"};
@@ -326,7 +326,8 @@ public final class CrosshairScreen extends TopScreen {
 		if (shareOpen) {
 			share.draw(ui, x, ty + 38, w - 10, 34, null, A_SHARE + 100, 1);
 			String code = Crosshairs.exportShareCode();
-			Draw.text(ui.ctx, "Current code (select and copy): " + Draw.fit(code, 9F, w - 10), x, ty + 78, 9F, argb(255, TEXT_MUTE));
+			Draw.text(ui.ctx, "Paste a code above and press ENTER to import", x, ty + 78, 9F, argb(255, TEXT_MUTE));
+			smallButton(x, ty + 94, 30, "Copy share code", false, hBtn[7], A_SHARE_COPY, 0);
 		}
 	}
 
@@ -483,6 +484,7 @@ public final class CrosshairScreen extends TopScreen {
 				share.focused = false;
 			}
 			case A_SHARE + 100 -> share.focused = true;
+		case A_SHARE_COPY -> Minecraft.getInstance().keyboardHandler.setClipboard(Crosshairs.exportShareCode());
 		case A_ENABLE -> CrosshairColor.instance.setEnabled(!CrosshairColor.instance.enabled());
 			case A_TOGGLE -> {
 				Setting s = CrosshairColor.setting(TOGGLES[arg]);
