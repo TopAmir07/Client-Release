@@ -193,6 +193,14 @@ public final class UtilityModules {
 			return instance != null && instance.spectator.getBool();
 		}
 
+		public static boolean vanillaBlending() {
+			return instance != null && instance.vanillaBlending.getBool();
+		}
+
+		public static boolean thirdPersonEnabled() {
+			return instance != null && instance.thirdPerson.getBool();
+		}
+
 		/** True when the editor draws its own shape instead of the game's picture. */
 		public static boolean custom() {
 			return active() && instance.shape.getMode() != 0;
@@ -320,11 +328,12 @@ public final class UtilityModules {
 				case SHAPE_DRAWING -> { // your own pixel drawing; Thickness = size of one drawn pixel
 					long[] b = l.bits();
 					if (b != null) {
-						int cell = t, half = GRID / 2;
+						int cell = t, size = dev.topclient.client.top.Crosshairs.gridSize();
+						int offset = dev.topclient.client.top.Crosshairs.gridOffset(), half = size / 2;
 						for (int pass = ol ? 0 : 1; pass < 2; pass++) {
-							for (int gy = 0; gy < GRID; gy++) {
-								for (int gx = 0; gx < GRID; gx++) {
-									if (!dev.topclient.client.top.Crosshairs.get(b, gx, gy)) {
+							for (int gy = 0; gy < size; gy++) {
+								for (int gx = 0; gx < size; gx++) {
+									if (!dev.topclient.client.top.Crosshairs.get(b, gx + offset, gy + offset)) {
 										continue;
 									}
 									int x0 = (gx - half) * cell - cell / 2, y0 = (gy - half) * cell - cell / 2;
