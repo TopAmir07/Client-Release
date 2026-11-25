@@ -116,7 +116,7 @@ public final class MoreModules {
 		private final Setting hideZero = bool("hideZero", "Hide when you have none", true);
 
 		public TotemCounter() {
-			super("totems", "Totem Counter", "How many Totems of Undying you carry.", 90, 57);
+			super("totems", "Totem Tracker", "Tracks how many Totems of Undying you carry.", 90, 57);
 			isNew = true;
 		}
 
