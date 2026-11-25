@@ -29,7 +29,7 @@ import static dev.topclient.client.top.TopTheme.*;
 public final class CrosshairScreen extends TopScreen {
 	private static final int A_PRESET = 1, A_BUILTIN = 2, A_SAVED = 3, A_ENABLE = 4, A_SLIDER = 5, A_TOGGLE = 6, A_SWATCH = 7, A_CUSTOM = 8,
 			A_PICKER = 9, A_GRID = 10, A_TOOL = 11, A_NAME = 12, A_SAVE = 13, A_SAVENEW = 14, A_DELETE = 15, A_NEW = 16, A_RESET = 17,
-			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27, A_FRIENDLY_COLOR = 28, A_ENEMY_COLOR = 29, A_SHARE_COPY = 30, A_FAV_SELECT = 31;
+			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27, A_FRIENDLY_COLOR = 28, A_ENEMY_COLOR = 29, A_SHARE_COPY = 30, A_FAV_SELECT = 31, A_FRIENDLY_SHAPE = 32, A_ENEMY_SHAPE = 33;
 
 	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick", "scale"};
 	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness", "Custom scale"};
@@ -47,7 +47,7 @@ public final class CrosshairScreen extends TopScreen {
 	private final TextField share = new TextField("Paste share code here", 512);
 	private int activeTab = 0;
 	private boolean shareOpen;
-	private boolean pickerOpen, eraser, mirrorH = true, mirrorV = true;
+	private boolean pickerOpen, eraser, mirrorH, mirrorV, rightMouseErase;
 	private boolean paintValue = true;
 	private String editingId;
 	private int bg;
@@ -395,6 +395,10 @@ public final class CrosshairScreen extends TopScreen {
 		Widgets.button(ui, cx, cy, cw, 30, "Friendly colour: " + String.format("#%06X", CrosshairColor.setting("friendly_color").getColor()), false, ui.over(cx, cy, cw, 30) ? 1F : 0F, A_FRIENDLY_COLOR, 0);
 		cy += 36;
 		Widgets.button(ui, cx, cy, cw, 30, "Enemy colour: " + String.format("#%06X", CrosshairColor.setting("enemy_color").getColor()), false, ui.over(cx, cy, cw, 30) ? 1F : 0F, A_ENEMY_COLOR, 0);
+		cy += 36;
+		Widgets.button(ui, cx, cy, cw, 30, "Friendly shape: " + CrosshairColor.setting("friendly_shape").modeName(), false, ui.over(cx, cy, cw, 30) ? 1F : 0F, A_FRIENDLY_SHAPE, 0);
+		cy += 36;
+		Widgets.button(ui, cx, cy, cw, 30, "Enemy shape: " + CrosshairColor.setting("enemy_shape").modeName(), false, ui.over(cx, cy, cw, 30) ? 1F : 0F, A_ENEMY_SHAPE, 0);
 		cy += 38;
 		Widgets.button(ui, cx, cy, cw, 34, "Reset to default", false, ui.over(cx, cy, cw, 34) ? 1F : 0F, A_RESET, 0);
 		ui.unclip();
@@ -515,16 +519,30 @@ public final class CrosshairScreen extends TopScreen {
 				pickerOpen = true;
 				picker.open(CrosshairColor.setting("enemy_color").getColor(), c -> CrosshairColor.setting("enemy_color").setColor(c));
 			}
+			case A_FRIENDLY_SHAPE -> CrosshairColor.setting("friendly_shape").setMode(CrosshairColor.setting("friendly_shape").getMode() + 1);
+			case A_ENEMY_SHAPE -> CrosshairColor.setting("enemy_shape").setMode(CrosshairColor.setting("enemy_shape").getMode() + 1);
 			case A_CUSTOM -> {
 				pickerOpen = !pickerOpen;
 				if (pickerOpen) {
-					picker.open(CrosshairColor.current().rgb(), c -> CrosshairColor.setting("color").setColor(c));
+					picker.openArgb((Math.round(CrosshairColor.setting("alpha").getFloat() * 255) << 24) | CrosshairColor.current().rgb(),
+						c -> CrosshairColor.setting("color").setColor(c),
+						a -> CrosshairColor.setting("alpha").setFloat(a / 255F));
 				}
 				UiSounds.click();
 			}
 			case A_PICKER -> picker.click(arg);
 			case A_GRID -> {
-				if (button == 1) paint(ui.mx, ui.my, false);
+				if (!painting) {
+					Crosshairs.beginStroke();
+					painting = true;
+					rightMouseErase = button == 1;
+					int gx = (int) Math.floor((ui.mx - gridX) / Math.max(1, cell));
+					int gy = (int) Math.floor((ui.my - gridY) / Math.max(1, cell));
+					boolean pixelOn = gx >= 0 && gy >= 0 && gx < Crosshairs.gridSize() && gy < Crosshairs.gridSize()
+							&& Crosshairs.get(Crosshairs.currentBits(), gx + Crosshairs.gridOffset(), gy + Crosshairs.gridOffset());
+					paintValue = !(rightMouseErase || eraser) && !pixelOn;
+				}
+				paint(ui.mx, ui.my, rightMouseErase || eraser ? false : paintValue);
 			}
 			case A_TOOL -> {
 				switch (arg) {
@@ -600,15 +618,7 @@ public final class CrosshairScreen extends TopScreen {
 				s.setFloat(v);
 			}
 			case A_PICKER -> picker.drag(arg, mx, my);
-			case A_GRID -> {
-				if (ui.dragAction == A_GRID && !painting) {
-					painting = true;
-					long[] b = Crosshairs.currentBits();
-					int gx = (int) ((mx - gridX) / Math.max(1, cell)), gy = (int) ((my - gridY) / Math.max(1, cell));
-					paintValue = !eraser && !(Crosshairs.get(b, gx + Crosshairs.gridOffset(), gy + Crosshairs.gridOffset()) && !eraser && clickToggles);
-				}
-				paint(mx, my, paintValue);
-			}
+			case A_GRID -> paint(mx, my, rightMouseErase || eraser ? false : paintValue);
 			case A_LSCROLL -> leftScroll.jump(Widgets.scrollFor(my, wy + HEAD_H + 7, wh - HEAD_H - 13, leftScroll.max, wh - HEAD_H));
 			case A_RSCROLL -> rightScroll.jump(Widgets.scrollFor(my, wy + HEAD_H + 7, wh - HEAD_H - 13, rightScroll.max, wh - HEAD_H));
 			default -> {
@@ -618,11 +628,12 @@ public final class CrosshairScreen extends TopScreen {
 
 	private boolean painting;
 	/** Clicking a pixel that is already on turns it off (only with the pencil, only for the first pixel). */
-	private static final boolean clickToggles = true;
 
 	@Override
 	public void onRelease(int action, int arg) {
+		if (painting) Crosshairs.endStroke();
 		painting = false;
+		rightMouseErase = false;
 		Config.saveIfNeeded(true);
 	}
 
