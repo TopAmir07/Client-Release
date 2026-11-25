@@ -4,7 +4,11 @@ import dev.topclient.client.clover.Config;
 import dev.topclient.client.clover.module.UtilityModules.CrosshairColor;
 import dev.topclient.client.clover.module.UtilityModules.CrosshairColor.Look;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -15,7 +19,46 @@ public final class Crosshairs {
 	private Crosshairs() {
 	}
 
+	/** Maximum backing canvas. The editor defaults to a centred 7x7 window. */
 	public static final int GRID = CrosshairColor.GRID;
+	private record Snapshot(long[] bits, int gridSize) {
+		private Snapshot copy() { return new Snapshot(bits.clone(), gridSize); }
+	}
+	private static final Deque<Snapshot> UNDO = new ArrayDeque<>();
+	private static final Deque<Snapshot> REDO = new ArrayDeque<>();
+	private static Snapshot strokeStart;
+	private static final int HISTORY_LIMIT = 60;
+
+	public static int gridSize() {
+		int value = Config.getInt("top.xhair.gridSize", 7);
+		return value == 7 || value == 9 || value == 11 || value == 13 || value == 15 ? value : 7;
+	}
+
+	public static int gridOffset() {
+		return (GRID - gridSize()) / 2;
+	}
+
+	public static void setGridSize(int size) {
+		if (size != 7 && size != 9 && size != 11 && size != 13 && size != 15) return;
+		int oldSize = gridSize();
+		if (oldSize == size) return;
+		long[] before = currentBits().clone();
+		int oldOffset = (GRID - oldSize) / 2;
+		int newOffset = (GRID - size) / 2;
+		long[] resized = empty();
+		int copy = Math.min(oldSize, size);
+		int oldStart = oldOffset + (oldSize - copy) / 2;
+		int newStart = newOffset + (size - copy) / 2;
+		for (int y = 0; y < copy; y++) {
+			for (int x = 0; x < copy; x++) {
+				set(resized, newStart + x, newStart + y, get(before, oldStart + x, oldStart + y));
+			}
+		}
+		if (strokeStart == null) pushUndo(new Snapshot(before, oldSize));
+		setCurrentRaw(resized);
+		Config.setInt("top.xhair.gridSize", size);
+		Config.saveIfNeeded(true);
+	}
 
 	public record Preset(String name, Look look) {
 	}
@@ -103,7 +146,100 @@ public final class Crosshairs {
 	}
 
 	public static void setCurrent(long[] b) {
+		long[] before = currentBits().clone();
+		if (!java.util.Arrays.equals(before, b) && strokeStart == null) pushUndo(new Snapshot(before, gridSize()));
+		setCurrentRaw(b);
+	}
+
+	public static void beginStroke() {
+		if (strokeStart == null) strokeStart = new Snapshot(currentBits().clone(), gridSize());
+	}
+
+	public static void endStroke() {
+		if (strokeStart == null) return;
+		Snapshot before = strokeStart;
+		strokeStart = null;
+		if (before.gridSize() != gridSize() || !java.util.Arrays.equals(before.bits(), currentBits())) pushUndo(before);
+		Config.saveIfNeeded(true);
+	}
+
+	private static void setCurrentRaw(long[] b) {
 		Config.set("top.xhair.current", hex(b));
+		cachedHex = null;
+	}
+
+	private static void pushUndo(Snapshot snapshot) {
+		UNDO.push(snapshot.copy());
+		while (UNDO.size() > HISTORY_LIMIT) UNDO.removeLast();
+		REDO.clear();
+	}
+
+	public static boolean canUndo() { return !UNDO.isEmpty(); }
+	public static boolean canRedo() { return !REDO.isEmpty(); }
+
+	public static void undo() {
+		if (UNDO.isEmpty()) return;
+		strokeStart = null;
+		REDO.push(new Snapshot(currentBits().clone(), gridSize()));
+		Snapshot previous = UNDO.pop();
+		Config.setInt("top.xhair.gridSize", previous.gridSize());
+		setCurrentRaw(previous.bits());
+		Config.saveIfNeeded(true);
+	}
+
+	public static void redo() {
+		if (REDO.isEmpty()) return;
+		strokeStart = null;
+		UNDO.push(new Snapshot(currentBits().clone(), gridSize()));
+		Snapshot next = REDO.pop();
+		Config.setInt("top.xhair.gridSize", next.gridSize());
+		setCurrentRaw(next.bits());
+		Config.saveIfNeeded(true);
+	}
+
+	/** Compact, versioned share code. It contains the grid and the visible crosshair settings. */
+	public static String exportShareCode() {
+		Look l = CrosshairColor.current();
+		String payload = "1|" + gridSize() + "|" + hex(currentBits()) + "|" + l.shape() + "|"
+				+ l.size() + "|" + l.gap() + "|" + l.thick() + "|" + l.rgb() + "|" + l.alpha()
+				+ "|" + l.outline() + "|" + l.dot();
+		return "TCX1-" + Base64.getUrlEncoder().withoutPadding()
+				.encodeToString(payload.getBytes(StandardCharsets.UTF_8));
+	}
+
+	/** Validates the complete payload before changing the active crosshair. */
+	public static boolean importShareCode(String code) {
+		try {
+			if (code == null || !code.startsWith("TCX1-") || code.length() > 2048) return false;
+			String decoded = new String(Base64.getUrlDecoder().decode(code.substring(5)), StandardCharsets.UTF_8);
+			String[] p = decoded.split("\\|", -1);
+			if (p.length != 11 || !p[0].equals("1") || !p[2].matches("[0-9a-fA-F]{64}")
+					|| !(p[9].equals("true") || p[9].equals("false"))
+					|| !(p[10].equals("true") || p[10].equals("false"))) return false;
+			int size = Integer.parseInt(p[1]);
+			if (size != 7 && size != 9 && size != 11 && size != 13 && size != 15) return false;
+			long[] bits = parse(p[2]);
+			int shape = Integer.parseInt(p[3]);
+			float crossSize = Float.parseFloat(p[4]), gap = Float.parseFloat(p[5]), thick = Float.parseFloat(p[6]);
+			int rgb = Integer.parseInt(p[7]);
+			float alpha = Float.parseFloat(p[8]);
+			boolean outline = Boolean.parseBoolean(p[9]), dot = Boolean.parseBoolean(p[10]);
+			if (shape < 0 || shape > CrosshairColor.SHAPE_DRAWING || !Float.isFinite(crossSize)
+					|| !Float.isFinite(gap) || !Float.isFinite(thick) || !Float.isFinite(alpha)
+					|| crossSize < 2 || crossSize > 20 || gap < 0 || gap > 10 || thick < 1 || thick > 6
+					|| alpha < 0 || alpha > 1 || rgb < 0 || rgb > 0xFFFFFF) return false;
+			beginStroke();
+			setGridSize(size);
+			setCurrent(bits);
+			endStroke();
+			CrosshairColor.apply(new Look(shape, crossSize, gap, thick, outline, dot, rgb, alpha, bits));
+			CrosshairColor.setting("color").setColor(rgb);
+			CrosshairColor.setting("alpha").setFloat(alpha);
+			Config.saveIfNeeded(true);
+			return true;
+		} catch (RuntimeException ex) {
+			return false;
+		}
 	}
 
 	// ------------------------------------------------------------------ presets

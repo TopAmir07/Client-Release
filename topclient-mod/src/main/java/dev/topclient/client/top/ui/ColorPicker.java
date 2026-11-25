@@ -15,9 +15,10 @@ import static dev.topclient.client.top.TopTheme.*;
  */
 public final class ColorPicker {
 	private final float[] hsv = new float[3];
-	private int rgb;
-	private IntConsumer onChange;
-	public final TextField hex = new TextField("#RRGGBB", 7);
+	private int rgb, alpha = 255;
+	private boolean alphaHex;
+	private IntConsumer onChange, onAlphaChange;
+	public final TextField hex = new TextField("#AARRGGBB", 9);
 	private int sqX, sqY, sqS, hueX, hueY, hueW, slX, slW;
 	private final int[] slY = new int[3];
 
@@ -32,8 +33,20 @@ public final class ColorPicker {
 	}
 
 	public void open(int rgb, IntConsumer onChange) {
+		this.alphaHex = false;
+		this.alpha = 255;
+		this.onAlphaChange = null;
 		this.onChange = onChange;
 		set(rgb, true);
+	}
+
+	/** Opens an ARGB-aware picker; accepts both #RRGGBB and #AARRGGBB. */
+	public void openArgb(int argb, IntConsumer onChange, IntConsumer onAlphaChange) {
+		this.alphaHex = true;
+		this.alpha = (argb >>> 24) & 0xFF;
+		this.onChange = onChange;
+		this.onAlphaChange = onAlphaChange;
+		set(argb & 0xFFFFFF, true);
 	}
 
 	public int rgb() {
@@ -43,7 +56,7 @@ public final class ColorPicker {
 	private void set(int c, boolean fromOutside) {
 		rgb = c & 0xFFFFFF;
 		toHsv(rgb, hsv);
-		hex.text = hex(rgb);
+		hex.text = formatHex();
 		if (!fromOutside && onChange != null) {
 			onChange.accept(rgb);
 		}
@@ -52,7 +65,7 @@ public final class ColorPicker {
 	private void fromHsv() {
 		rgb = hsv(hsv[0], hsv[1], hsv[2]);
 		if (!hex.focused) {
-			hex.text = hex(rgb);
+			hex.text = formatHex();
 		}
 		if (onChange != null) {
 			onChange.accept(rgb);
@@ -145,7 +158,7 @@ public final class ColorPicker {
 		hex.key(key, mods, paste);
 		applyHex();
 		if (!hex.focused) {
-			hex.text = hex(rgb);
+			hex.text = formatHex();
 		}
 		return true;
 	}
@@ -159,14 +172,26 @@ public final class ColorPicker {
 		return true;
 	}
 
+	private String formatHex() {
+		return alphaHex ? String.format(java.util.Locale.ROOT, "#%02X%06X", alpha, rgb) : hex(rgb);
+	}
+
 	private void applyHex() {
-		int c = parseHex(hex.text);
-		if (c >= 0 && hex.text.replace("#", "").length() == 6) {
-			rgb = c;
-			toHsv(rgb, hsv);
-			if (onChange != null) {
-				onChange.accept(rgb);
+		String value = hex.text.startsWith("#") ? hex.text.substring(1) : hex.text;
+		try {
+			if (value.length() == 6) {
+				rgb = Integer.parseInt(value, 16);
+				toHsv(rgb, hsv);
+				if (onChange != null) onChange.accept(rgb);
+			} else if (alphaHex && value.length() == 8) {
+				alpha = Integer.parseInt(value.substring(0, 2), 16);
+				rgb = Integer.parseInt(value.substring(2), 16);
+				toHsv(rgb, hsv);
+				if (onAlphaChange != null) onAlphaChange.accept(alpha);
+				if (onChange != null) onChange.accept(rgb);
 			}
+		} catch (NumberFormatException ignored) {
+			// Keep the last valid colour while the user is typing.
 		}
 	}
 }

@@ -26,7 +26,6 @@ public class CloverClient implements ClientModInitializer {
 		dev.topclient.client.clover.accounts.AccountsScreen.register();
 		dev.topclient.client.clover.ui.TopTitleScreen.register();
 		dev.topclient.client.top.MenuOverlay.register();
-		dev.topclient.client.top.MultiplayerButtons.register();
 		dev.topclient.client.clover.ui.Screenshots.register();
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> Config.saveIfNeeded(true));
