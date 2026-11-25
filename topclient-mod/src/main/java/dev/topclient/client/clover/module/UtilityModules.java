@@ -154,6 +154,12 @@ public final class UtilityModules {
 		final Setting healthShift = bool("health_shift", "Health color shift", false);
 		final Setting customScale = bool("custom_scale", "Use custom scale", false);
 		final Setting scale = number("scale", "Custom scale", 0.5F, 2F, 0.05F, 1F);
+		final Setting friendly = bool("friendly", "Custom friendly crosshair", false);
+		final Setting enemy = bool("enemy", "Custom enemy crosshair", false);
+		final Setting friendlyColor = color("friendly_color", "Friendly colour", 0x55DD88);
+		final Setting enemyColor = color("enemy_color", "Enemy colour", 0xFF5555);
+		final Setting elytra = bool("elytra", "Elytra status crosshair", false);
+		final Setting thirdPerson = bool("third_person", "Show crosshair in third person", false);
 		private float spread;
 
 		public static final int SHAPE_DRAWING = 7, GRID = 15;
@@ -237,6 +243,20 @@ public final class UtilityModules {
 			}
 			float gs = (float) mc.getWindow().getGuiScale();
 			Look look = current();
+			if (mc.player != null && c.elytra.getBool() && mc.player.isFallFlying()) {
+				look = new Look(look.shape(), Math.max(2F, look.size() * 0.8F), look.gap(), look.thick(),
+						look.outline(), look.dot(), look.rgb(), look.alpha(), look.bits());
+			}
+			if (mc.player != null && mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit) {
+				boolean isFriendly = mc.player.isAlliedTo(hit.getEntity());
+				if (isFriendly && c.friendly.getBool()) {
+					look = new Look(look.shape(), look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+							c.friendlyColor.getColor(), look.alpha(), look.bits());
+				} else if (!isFriendly && c.enemy.getBool()) {
+					look = new Look(look.shape(), look.size(), look.gap(), look.thick(), look.outline(), look.dot(),
+							c.enemyColor.getColor(), look.alpha(), look.bits());
+				}
+			}
 			if (c.healthShift.getBool() && mc.player != null) {
 				float health = Math.max(0F, Math.min(1F, mc.player.getHealth() / Math.max(1F, mc.player.getMaxHealth())));
 				int green = Math.round(255 * health);
