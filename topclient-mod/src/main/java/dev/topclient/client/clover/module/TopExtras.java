@@ -18,7 +18,7 @@ public final class TopExtras {
 		final Setting strength = number("strength", "Strength %", 10F, 100F, 5F, 100F);
 
 		public Fullbright() {
-			super("fullbright", "Fullbright", "See in caves and at night as if everything were lit, like Night Vision. Only changes how light looks on your screen.", Category.VISUAL);
+			super("fullbright", "Fullbright", "Brightens dark areas on your screen without changing the server.", Category.VISUAL);
 			instance = this;
 		}
 
