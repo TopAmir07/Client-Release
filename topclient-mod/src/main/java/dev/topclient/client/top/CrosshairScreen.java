@@ -29,7 +29,7 @@ import static dev.topclient.client.top.TopTheme.*;
 public final class CrosshairScreen extends TopScreen {
 	private static final int A_PRESET = 1, A_BUILTIN = 2, A_SAVED = 3, A_ENABLE = 4, A_SLIDER = 5, A_TOGGLE = 6, A_SWATCH = 7, A_CUSTOM = 8,
 			A_PICKER = 9, A_GRID = 10, A_TOOL = 11, A_NAME = 12, A_SAVE = 13, A_SAVENEW = 14, A_DELETE = 15, A_NEW = 16, A_RESET = 17,
-			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27;
+			A_BG = 18, A_LSCROLL = 19, A_RSCROLL = 20, A_EDIT = 21, A_TAB = 22, A_UNDO = 23, A_REDO = 24, A_GRID_SIZE = 25, A_SHARE = 26, A_FAV = 27, A_FRIENDLY_COLOR = 28, A_ENEMY_COLOR = 29;
 
 	private static final String[] SLIDERS = {"alpha", "size", "gap", "thick", "scale"};
 	private static final String[] SLIDER_LABELS = {"Opacity", "Size", "Gap", "Thickness", "Custom scale"};
@@ -370,6 +370,7 @@ public final class CrosshairScreen extends TopScreen {
 		}
 		// sliders
 		for (int i = 0; i < SLIDERS.length; i++) {
+			if (i == 4 && !CrosshairColor.setting("custom_scale").getBool()) continue;
 			Setting s = CrosshairColor.setting(SLIDERS[i]);
 			float v = s.getFloat();
 			String label = SLIDER_LABELS[i] + (i == 3 && drawing() ? " (pixel size)" : "");
@@ -389,6 +390,10 @@ public final class CrosshairScreen extends TopScreen {
 			cy += 38;
 		}
 		cy += 8;
+		Widgets.button(ui, cx, cy, cw, 30, "Friendly colour: " + String.format("#%06X", CrosshairColor.setting("friendly_color").getColor()), false, ui.over(cx, cy, cw, 30) ? 1F : 0F, A_FRIENDLY_COLOR, 0);
+		cy += 36;
+		Widgets.button(ui, cx, cy, cw, 30, "Enemy colour: " + String.format("#%06X", CrosshairColor.setting("enemy_color").getColor()), false, ui.over(cx, cy, cw, 30) ? 1F : 0F, A_ENEMY_COLOR, 0);
+		cy += 38;
 		Widgets.button(ui, cx, cy, cw, 34, "Reset to default", false, ui.over(cx, cy, cw, 34) ? 1F : 0F, A_RESET, 0);
 		ui.unclip();
 		Widgets.scrollbar(ui, x + w - 8, y + 6, h - 12, rightScroll.pos, rightScroll.max, h, A_RSCROLL, 0);
@@ -493,6 +498,14 @@ public final class CrosshairScreen extends TopScreen {
 				Config.setInt("top.xhair.favorite", CrosshairColor.current().rgb());
 				Config.saveIfNeeded(true);
 				UiSounds.click();
+			}
+			case A_FRIENDLY_COLOR -> {
+				pickerOpen = true;
+				picker.open(CrosshairColor.setting("friendly_color").getColor(), c -> CrosshairColor.setting("friendly_color").setColor(c));
+			}
+			case A_ENEMY_COLOR -> {
+				pickerOpen = true;
+				picker.open(CrosshairColor.setting("enemy_color").getColor(), c -> CrosshairColor.setting("enemy_color").setColor(c));
 			}
 			case A_CUSTOM -> {
 				pickerOpen = !pickerOpen;
