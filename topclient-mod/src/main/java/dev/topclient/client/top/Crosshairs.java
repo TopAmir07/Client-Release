@@ -249,7 +249,7 @@ public final class Crosshairs {
 	}
 
 	public static final List<Preset> PRESETS = List.of(
-			new Preset("Game default", look(0, 6, 3, 2, true, false)),
+			new Preset("Game default", look(1, 7, 3, 3, true, false)),
 			new Preset("Classic", look(1, 6, 0, 2, true, false)),
 			new Preset("Gap cross", look(2, 5, 3, 2, true, false)),
 			new Preset("Gap + dot", look(2, 5, 3, 2, true, true)),
