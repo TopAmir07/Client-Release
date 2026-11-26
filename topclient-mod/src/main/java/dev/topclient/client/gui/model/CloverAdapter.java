@@ -67,7 +67,7 @@ public final class CloverAdapter implements GuiModule {
 		}
 		if (settings == null) {
 			settings = new ArrayList<>();
-			settings.add(wrap(module.toggleKey));
+			settings.add(wrap(module, module.toggleKey));
 			for (Module.Action a : module.actions) {
 				settings.add(action(a.label(), () -> {
 					Minecraft mc = Minecraft.getInstance();
