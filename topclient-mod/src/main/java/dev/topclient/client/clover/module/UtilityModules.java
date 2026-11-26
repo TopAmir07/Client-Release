@@ -294,9 +294,8 @@ public final class UtilityModules {
 			m.scale(unit, unit);
 			int h0 = -t / 2, h1 = h0 + t;
 			switch (l.shape()) {
-				case 1 -> { // cross
-					bar(ctx, -s, h0, s, h1, col, out, ol);
-					bar(ctx, h0, -s, h1, s, col, out, ol);
+				case 1 -> { // cross: draw one continuous outline so the centre never darkens
+					cross(ctx, s, t, col, out, ol);
 				}
 				case 2, 5 -> { // cross with gap / T
 					bar(ctx, -s - g, h0, -g, h1, col, out, ol);
@@ -360,6 +359,24 @@ public final class UtilityModules {
 				bar(ctx, h0, h0, h1, h1, col, out, ol);
 			}
 			m.popMatrix();
+		}
+
+		private static void cross(net.minecraft.client.gui.GuiGraphicsExtractor ctx, int size, int thickness, int colour, int outlineColour, boolean outline) {
+			int x0 = -size, x1 = size, y0 = -size, y1 = size;
+			int h0 = -thickness / 2, h1 = h0 + thickness;
+			if (outline) {
+				// Paint the outline as non-overlapping strips around the plus silhouette.
+				ctx.fill(x0 - 1, h0 - 1, x1 + 1, h0, outlineColour);
+				ctx.fill(x0 - 1, h1, x1 + 1, h1 + 1, outlineColour);
+				ctx.fill(x0 - 1, h0, h0, h1, outlineColour);
+				ctx.fill(h1, h0, x1 + 1, h1, outlineColour);
+				ctx.fill(h0 - 1, y0 - 1, h0, h0, outlineColour);
+				ctx.fill(h1, y0 - 1, h1 + 1, h0, outlineColour);
+				ctx.fill(h0 - 1, h1, h0, y1 + 1, outlineColour);
+				ctx.fill(h1, h1, h1 + 1, y1 + 1, outlineColour);
+			}
+			ctx.fill(x0, h0, x1, h1, colour);
+			ctx.fill(h0, y0, h1, y1, colour);
 		}
 
 		private static void bar(net.minecraft.client.gui.GuiGraphicsExtractor ctx, int x0, int y0, int x1, int y1, int col, int out, boolean outline) {
