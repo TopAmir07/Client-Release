@@ -210,6 +210,11 @@ public final class Cosmetics {
 		if (player == mc.player) {
 			return currentCape();
 		}
+		// NPCs and server-side fake players are not in the real client player list.
+		// Only apply shared TopClient cosmetics to authenticated network players.
+		if (mc.getConnection() == null || mc.getConnection().getPlayerInfo(player.getUUID()) == null) {
+			return null;
+		}
 		String key = tagOf(skin).get("c");
 		return key == null ? null : sharedCape(key);
 	}

@@ -415,10 +415,10 @@ public final class CrosshairScreen extends TopScreen {
 	private void useDrawing(long[] bits) {
 		enableCustom();
 		Crosshairs.setCurrent(bits.clone());
-		CrosshairColor.setting("shape").setMode(CrosshairColor.SHAPE_DRAWING);
-		if (CrosshairColor.setting("thick").getFloat() > 3) {
-			CrosshairColor.setting("thick").setFloat(2);
-		}
+		Look current = CrosshairColor.current();
+		// Keep the selected drawing and all live editor controls in sync.
+		CrosshairColor.apply(new Look(CrosshairColor.SHAPE_DRAWING, current.size(), current.gap(),
+				Math.min(3F, current.thick()), current.outline(), current.dot(), current.rgb(), current.alpha(), bits.clone()));
 	}
 
 	@Override
