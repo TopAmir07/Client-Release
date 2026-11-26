@@ -322,12 +322,16 @@ public final class UtilityModules {
 						ctx.fill(px + h0, py + h0, px + h1, py + h1, col);
 					}
 				}
-				case 6 -> { // X: diagonal steps
-					for (int i = g; i <= s + g; i++) {
-						ctx.fill(i + h0, i + h0, i + h1, i + h1, col);
-						ctx.fill(-i + h0, i + h0, -i + h1, i + h1, col);
-						ctx.fill(i + h0, -i + h0, i + h1, -i + h1, col);
-						ctx.fill(-i + h0, -i + h0, -i + h1, -i + h1, col);
+				case 6 -> { // X: diagonal pixel arms with a clean outline pass
+					for (int pass = ol ? 0 : 1; pass < 2; pass++) {
+						int c = pass == 0 ? out : col;
+						int pad = pass == 0 ? 1 : 0;
+						for (int i = g; i <= s + g; i++) {
+							ctx.fill(i + h0 - pad, i + h0 - pad, i + h1 + pad, i + h1 + pad, c);
+							ctx.fill(-i + h0 - pad, i + h0 - pad, -i + h1 + pad, i + h1 + pad, c);
+							ctx.fill(i + h0 - pad, -i + h0 - pad, i + h1 + pad, -i + h1 + pad, c);
+							ctx.fill(-i + h0 - pad, -i + h0 - pad, -i + h1 + pad, -i + h1 + pad, c);
+						}
 					}
 				}
 				case SHAPE_DRAWING -> { // your own pixel drawing; Thickness = size of one drawn pixel
