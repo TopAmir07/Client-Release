@@ -95,7 +95,7 @@ public final class ChatModules {
 		private static boolean reflectionFailed;
 
 		public CompactChat() {
-			super("compactchat", "Compact Chat", "Joins identical repeated chat lines into one line with a counter, like Hello (5x). Turn it off to see every line again. Only your screen changes.", Category.UTILITY);
+			super("compactchat", "Compact Chat", "Joins identical repeated chat lines into one line with a light-grey counter, like Hello [5x]. Turn it off to see every line again. Only your screen changes.", Category.UTILITY);
 			isNew = true;
 			instance = this;
 		}
@@ -183,7 +183,7 @@ public final class ChatModules {
 			return message;
 		}
 		c.count++;
-		return message.copy().append(Component.literal(" (" + c.count + "x)").withStyle(ChatFormatting.GRAY));
+		return message.copy().append(Component.literal(" [" + c.count + "x]").withStyle(ChatFormatting.GRAY));
 	}
 
 	public static final class ChatTimestamps extends Module {
