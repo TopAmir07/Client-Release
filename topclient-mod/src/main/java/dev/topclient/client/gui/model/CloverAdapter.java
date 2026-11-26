@@ -83,7 +83,7 @@ public final class CloverAdapter implements GuiModule {
 			}
 			List<GuiSetting> look = new ArrayList<>();
 			for (Setting s : module.settings) {
-				GuiSetting g = wrap(s);
+				GuiSetting g = wrap(module, s);
 				if (s.look) {
 					look.add(g);
 				} else {
@@ -152,7 +152,16 @@ public final class CloverAdapter implements GuiModule {
 		};
 	}
 
-	static GuiSetting wrap(Setting s) {
+	private static void activateCrosshair(Module module, Setting changed) {
+		if (!(module instanceof dev.topclient.client.clover.module.UtilityModules.CrosshairColor crosshair)) return;
+		if (!crosshair.enabled()) crosshair.setEnabled(true);
+		if (!"shape".equals(changed.key)) {
+			Setting shape = dev.topclient.client.clover.module.UtilityModules.CrosshairColor.setting("shape");
+			if (shape != null && shape.getMode() == 0) shape.setMode(1);
+		}
+	}
+
+	static GuiSetting wrap(Module module, Setting s) {
 		return switch (s.type) {
 			case BOOL -> new GuiSetting(GuiSetting.Kind.TOGGLE, s.label, null) {
 				@Override
@@ -162,7 +171,9 @@ public final class CloverAdapter implements GuiModule {
 
 				@Override
 				public void setBool(boolean v) {
+					activateCrosshair(module, s);
 					s.setBool(v);
+					Config.saveIfNeeded(false);
 				}
 
 				@Override
@@ -193,7 +204,9 @@ public final class CloverAdapter implements GuiModule {
 
 				@Override
 				public void setValue(double v) {
+					activateCrosshair(module, s);
 					s.setFloat((float) v);
+					Config.saveIfNeeded(false);
 				}
 
 				@Override
@@ -214,7 +227,9 @@ public final class CloverAdapter implements GuiModule {
 
 				@Override
 				public void setRgb(int rgb) {
+					activateCrosshair(module, s);
 					s.setColor(rgb);
+					Config.saveIfNeeded(false);
 				}
 
 				@Override
@@ -235,7 +250,9 @@ public final class CloverAdapter implements GuiModule {
 
 				@Override
 				public void setModeIndex(int i) {
+					activateCrosshair(module, s);
 					s.setMode(i);
+					Config.saveIfNeeded(false);
 				}
 
 				@Override
@@ -262,6 +279,7 @@ public final class CloverAdapter implements GuiModule {
 				@Override
 				public void setKey(int code) {
 					s.setKey(Math.max(0, code));
+					Config.saveIfNeeded(false);
 				}
 
 				@Override
@@ -278,7 +296,9 @@ public final class CloverAdapter implements GuiModule {
 
 				@Override
 				public void setText(String v) {
+					activateCrosshair(module, s);
 					s.setText(v);
+					Config.saveIfNeeded(false);
 				}
 
 				@Override
