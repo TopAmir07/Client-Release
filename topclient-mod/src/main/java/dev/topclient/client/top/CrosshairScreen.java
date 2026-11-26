@@ -118,22 +118,14 @@ public final class CrosshairScreen extends TopScreen {
 		int rowsP = (Crosshairs.PRESETS.size() + cols - 1) / cols;
 		int rowsB = (Crosshairs.BUILT_IN.size() + cols - 1) / cols;
 		int rowsS = (saved.size() + 1 + cols - 1) / cols;
-		int content = 3 * 34 + (rowsP + rowsB + rowsS) * (tile + gap) + 20;
+		int content = 2 * 34 + (rowsB + rowsS) * (tile + gap) + 20;
 		leftScroll.setMax(content - h);
 		leftScroll.update(ui);
 		ui.clip(x, y, w, h);
 		int cy = y + 16 - Math.round(leftScroll.pos);
 		Look cur = CrosshairColor.current();
 		int idx = 0;
-		cy = section(x, cy, "PRESETS");
-		for (int i = 0; i < Crosshairs.PRESETS.size(); i++) {
-			Crosshairs.Preset p = Crosshairs.PRESETS.get(i);
-			Look l = withColour(p.look(), cur);
-			boolean on = sameLook(p.look(), cur);
-			tile(x + 14 + (i % cols) * (tile + gap), cy + (i / cols) * (tile + gap), tile, l, p.name(), on, idx++, A_PRESET, i);
-		}
-		cy += rowsP * (tile + gap) + 10;
-		cy = section(x, cy, "SHAPES");
+		cy = section(x, cy, "PRESETS & SHAPES");
 		long[] curBits = Crosshairs.currentBits();
 		for (int i = 0; i < Crosshairs.BUILT_IN.size(); i++) {
 			Crosshairs.Drawing d = Crosshairs.BUILT_IN.get(i);
