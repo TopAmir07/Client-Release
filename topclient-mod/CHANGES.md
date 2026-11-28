@@ -1,3 +1,10 @@
+## Unreleased — Vulkan guidance and Ping stability
+
+- Ping HUD: optional jitter indicator based on the smoothed change between server-reported latency samples.
+- Ping HUD: retains rolling min / average / max values and the configurable text refresh interval.
+- Vulkan: documented the native experimental Vulkan backend exposed by Sodium 0.9.x on Minecraft 26.2. No legacy standalone VulkanMod is bundled; OpenGL remains the fallback for compatibility and shader use.
+- Note: the ping HUD measures connection stability; it does not claim to reduce server distance or server-side latency.
+
 # TopClient (unreleased)
 
 - **Compact Chat** (Utility): identical repeated chat lines are joined into one line with a counter, like `Hello (5x)`. Settings: grouping time (5-600 s), players never compacted, words never compacted. Different players or different texts are never joined. Switch it off to see every line again. Compiled-checked only for syntax; not tested in-game.
