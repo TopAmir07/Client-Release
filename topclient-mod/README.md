@@ -16,6 +16,19 @@ Open **Open crosshair editor** from the Crosshair module.
 
 Saved drawings and crosshair settings are stored in the normal TopClient config. The custom editor keeps its existing 15x15 backing format and shows a centred, resizable window so older drawings remain compatible.
 
+## Performance and connection stability
+
+### Vulkan on Minecraft 26.2
+- TopClient uses Sodium rather than shipping a second renderer. Sodium 0.9.x for Minecraft 26.2 has experimental Vulkan support through Minecraft's **Video Settings → Graphics API** option.
+- Vulkan is optional and should be tested separately. Keep OpenGL as the fallback if a mod, shader pack, or driver behaves incorrectly.
+- Do not install the legacy standalone VulkanMod alongside the native Sodium/Minecraft Vulkan backend.
+- Iris shader support may not be available while Vulkan is selected. Switch back to OpenGL when using an OpenGL-based shader setup.
+
+### Ping stability HUD
+- The Ping HUD can show server-reported latency, rolling min/average/max values, and an estimated jitter value.
+- Jitter is the smoothed average change between consecutive server-reported ping samples; it helps identify an unstable connection.
+- This is monitoring, not a way to bypass server latency. The client cannot remove distance to the server or control server-side tick/network delays.
+
 ## Credits
 TopClient is a fork of the AfrikaClient 26.2 mod, which is itself based on lvstrng's client source. The original licence (`LICENSE`) still applies, and the history of the base mod is kept below.
 
