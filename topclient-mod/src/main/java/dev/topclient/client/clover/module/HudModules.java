@@ -173,14 +173,17 @@ public final class HudModules {
 
 	public static final class Ping extends TextHud {
 		private final Setting minMaxAvg = bool("minmaxavg", "Show min / avg / max ping (last samples)", false);
+		private final Setting showJitter = bool("jitter", "Show ping jitter (stability)", true);
 		private final Setting updateMs = number("updatems", "Text update interval (ms)", 100, 2000, 100, 500);
 		private final int[] ring = new int[60];
 		private int ringN;
 		private int ringPos;
+		private int lastMs = -1;
+		private double jitter;
 		private Object lastConnection;
 
 		public Ping() {
-			super("ping", "Ping", "The latency the server reports for you (the same value as the tab list). Optional min / avg / max.", 1, 43);
+			super("ping", "Ping", "Server-reported latency with optional min / avg / max and jitter (connection stability).", 1, 43);
 		}
 
 		@Override
@@ -191,25 +194,31 @@ public final class HudModules {
 		@Override
 		protected String[] lines(Minecraft mc) {
 			if (mc.isLocalServer() || mc.getConnection() == null || mc.player == null) {
-				ringN = 0;
+				resetSamples();
 				lastConnection = null;
 				return new String[]{"Ping: -"};
 			}
 			if (mc.getConnection() != lastConnection) {
 				lastConnection = mc.getConnection();
-				ringN = 0;
-				ringPos = 0;
+				resetSamples();
 			}
 			PlayerInfo e = mc.getConnection().getPlayerInfo(mc.player.getUUID());
 			int ms = e == null ? 0 : e.getLatency();
 			if (ms <= 0) {
 				return new String[]{"Ping: -"};
 			}
+			if (lastMs >= 0) {
+				// Exponential moving average of absolute sample-to-sample change.
+				jitter = jitter == 0 ? Math.abs(ms - lastMs) : jitter * 0.75 + Math.abs(ms - lastMs) * 0.25;
+			}
+			lastMs = ms;
 			ring[ringPos] = ms;
 			ringPos = (ringPos + 1) % ring.length;
 			ringN = Math.min(ringN + 1, ring.length);
 			if (!minMaxAvg.getBool() || ringN < 2) {
-				return new String[]{"Ping: " + ms + " ms"};
+				return showJitter.getBool()
+						? new String[]{"Ping: " + ms + " ms", "Jitter: " + Math.round(jitter) + " ms"}
+						: new String[]{"Ping: " + ms + " ms"};
 			}
 			int mn = Integer.MAX_VALUE, mx = 0;
 			long sum = 0;
@@ -218,7 +227,18 @@ public final class HudModules {
 				mx = Math.max(mx, ring[i]);
 				sum += ring[i];
 			}
+			if (showJitter.getBool()) {
+				return new String[]{"Ping: " + ms + " ms", "min " + mn + "  avg " + (sum / ringN) + "  max " + mx,
+						"Jitter: " + Math.round(jitter) + " ms"};
+			}
 			return new String[]{"Ping: " + ms + " ms", "min " + mn + "  avg " + (sum / ringN) + "  max " + mx};
+		}
+
+		private void resetSamples() {
+			ringN = 0;
+			ringPos = 0;
+			lastMs = -1;
+			jitter = 0;
 		}
 	}
 
